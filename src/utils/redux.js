@@ -1,5 +1,5 @@
 export const getSubjectById = (subjects, id) => (
-  subjects.find(subject => Number(subject.id) === Number(id))
+  subjects.find(subject => subject.id === id)
 );
 
 export const getSubjectNames = (subjects) => (

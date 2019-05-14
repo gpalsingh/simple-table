@@ -48,10 +48,10 @@ const AddSubjectPrompt = ({ addSubPromptState, addSubjectPromptClose, subjects, 
       />
     );
   }
-  let [selectedSubjectID, setSelectedSubject] = useState(subjects[0]['id']);
+  let [selectedSubjectID, setSelectedSubject] = useState(Number(subjects[0]['id']));
 
   const handleOptionChange = (event) => {
-    setSelectedSubject(event.target.value)
+    setSelectedSubject(Number(event.target.value));
   }
 
   const subject_options = [];
@@ -143,7 +143,6 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod }) => {
   const addSubjectPromptClose = () => {
     setAddSubPromptState({
       isOpen: false,
-      currentCell: [...addSubPromptState.currentCell]
     });
   }
 
