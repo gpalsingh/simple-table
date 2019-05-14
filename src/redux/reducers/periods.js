@@ -6,11 +6,12 @@ import update from 'immutability-helper';
 const initialState = [[],[],[],[],[],[]]; //Six days
 
 const periods = (state = initialState, action) => {
+  let day, periodNo;
 
   switch(action.type) {
     case ADD_PERIOD:
       const { id, periodInfo } = action.payload;
-      const { day, periodNo } = periodInfo;
+      ({ day, periodNo } = periodInfo);
       return update(state, {
         [day]: {
           [periodNo]: {
@@ -20,11 +21,11 @@ const periods = (state = initialState, action) => {
       });
 
     case REMOVE_PERIOD:
-      const { rday, rperiodNo } = action.payload.periodInfo;
+      ({ day, periodNo } = action.payload.periodInfo);
       return update(state, {
-        [rday]: {
-          [rperiodNo]: {
-            $set: {}
+        [day]: {
+          [periodNo]: {
+            $set: null
           }
         }
       });

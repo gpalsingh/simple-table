@@ -39,7 +39,7 @@ const NoSubjectsFound = ({ addSubPromptState, addSubjectPromptClose }) => (
   </Popup>
 );
 
-const AddSubjectPrompt = ({ addSubPromptState, addSubjectPromptClose, subjects, addPeriod }) => {
+const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjects, addPeriod, removePeriod }) => {
   if (subjects.length < 1) {
     return (
       <NoSubjectsFound
@@ -71,6 +71,24 @@ const AddSubjectPrompt = ({ addSubPromptState, addSubjectPromptClose, subjects, 
     event.preventDefault()
     close()
   }
+
+  /* Show reset button too if cell already filled */
+  let resetButton = null;
+  const resetCell = () => {
+    removePeriod({
+      day: addSubPromptState.currentCell[0],
+      periodNo: addSubPromptState.currentCell[1]
+    });
+    addSubjectPromptClose();
+  };
+  if (addSubPromptState.showResetButton === true) {
+    resetButton = (
+      <button onClick={resetCell}>
+        Reset
+      </button>
+    );
+  }
+
   return (
     <Popup
       open={addSubPromptState.isOpen}
@@ -87,6 +105,7 @@ const AddSubjectPrompt = ({ addSubPromptState, addSubjectPromptClose, subjects, 
           </label>
           <div>
             <input type="submit" value="Submit" />
+            {resetButton}
             <button onClick={close}>
               Cancel
             </button>
@@ -98,24 +117,15 @@ const AddSubjectPrompt = ({ addSubPromptState, addSubjectPromptClose, subjects, 
 }
 
 const TimeTableCell = ({ day_index, period_no, period_info, subjects, fillTableCell, resetTableCell }) => {
-  const default_sub_name = '+'
+  let subject_name = '+';
+  let is_filled = false;
 
-  if (!period_info) {
-    return (
-      <td
-        style={{
-          padding: "5px",
-          border: "1px solid black"
-        }}
-        onClick={() => fillTableCell(day_index, period_no)}
-      >{default_sub_name}</td>
-    );
+  if (period_info) {
+    const sub_id = period_info.sub_id;
+    const subject_info = getSubjectById(subjects, sub_id);
+    subject_name = subject_info['name'];
+    is_filled = true;
   }
-
-  const sub_id = period_info.sub_id;
-  const subject_info = getSubjectById(subjects, sub_id);
-
-  const subject_name = subject_info['name'];
 
   return (
     <td
@@ -123,7 +133,7 @@ const TimeTableCell = ({ day_index, period_no, period_info, subjects, fillTableC
         padding: "5px",
         border: "1px solid black"
       }}
-      onClick={() => resetTableCell(day_index, period_no)}
+      onClick={() => fillTableCell(day_index, period_no, is_filled)}
     >{subject_name}</td>
   );
 }
@@ -132,16 +142,19 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod }) => {
   let schedule = [];
   let [addSubPromptState, setAddSubPromptState] = useState({
     isOpen: false,
+    showResetButton: false,
     currentCell: [1, 1]
   });
-  const fillTableCell = (day_index, period_no) => {
+  const fillTableCell = (day_index, period_no, is_filled) => {
     setAddSubPromptState({
       isOpen: true,
+      showResetButton: is_filled,
       currentCell: [day_index, period_no]
     });
   }
   const addSubjectPromptClose = () => {
     setAddSubPromptState({
+      ...addSubPromptState,
       isOpen: false,
     });
   }
@@ -173,11 +186,12 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod }) => {
 
   return (
     <div>
-    <AddSubjectPrompt
+    <TableCellClickPrompt
       addSubPromptState={addSubPromptState}
       addSubjectPromptClose={addSubjectPromptClose}
       subjects={subjects}
       addPeriod={addPeriod}
+      removePeriod={removePeriod}
     />
 
     <table style={{border: "1px solid black", borderSpacing: "15px", borderCollapse: "separate"}}>
