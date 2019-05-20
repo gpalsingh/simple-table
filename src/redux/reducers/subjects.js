@@ -13,6 +13,7 @@ const subjects = (state = [], action) => {
         {
           id: id,
           name: subjectData.subject_name,
+          short_name: subjectData.short_name,
           teacher_name: subjectData.teacher_name
         }
       ];

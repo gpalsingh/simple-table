@@ -123,7 +123,7 @@ const TimeTableCell = ({ day_index, period_no, period_info, subjects, fillTableC
   if (period_info) {
     const sub_id = period_info.sub_id;
     const subject_info = getSubjectById(subjects, sub_id);
-    subject_name = subject_info['name'];
+    subject_name = subject_info['short_name'];
     is_filled = true;
   }
 
