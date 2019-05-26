@@ -5,6 +5,45 @@ import { Link } from "react-router-dom";
 
 import { addPeriod, removePeriod } from '../redux/actions';
 import { getSubjectById, getSubjectNamesAndIds } from '../utils/redux';
+import {
+  StateSubjectDataInterface,
+  StatePeriodsDataInterface,
+  StoreStateInterface
+} from '../types/store';
+import {
+  PeriodInfoInterface,
+  SubjectDataInterface
+} from '../types/actions';
+import { PeriodsCellInterface } from '../types/reducers';
+
+interface TimeTableProps {
+  periods: StatePeriodsDataInterface,
+  subjects: StateSubjectDataInterface[],
+  addPeriod: typeof addPeriod,
+  removePeriod: typeof removePeriod
+}
+
+interface TimeTableCellProps {
+  day_index: number,
+  period_no: number,
+  period_info: PeriodsCellInterface,
+  subjects: StateSubjectDataInterface[],
+  fillTableCell: any
+}
+
+interface SubPromptStateInterface {
+  isOpen: boolean,
+  showResetButton: boolean,
+  currentCell: Array<number>
+}
+
+interface TableCellClickPromptProps {
+  addSubPromptState: SubPromptStateInterface,
+  addSubjectPromptClose:any,
+  subjects: StateSubjectDataInterface[],
+  addPeriod: typeof addPeriod,
+  removePeriod: typeof removePeriod
+}
 
 const week_days = [
   "Monday",
@@ -17,7 +56,7 @@ const week_days = [
 
 const max_periods = 9;
 
-const NoSubjectsFound = ({ addSubPromptState, addSubjectPromptClose }) => (
+const NoSubjectsFound = ({ addSubPromptState, addSubjectPromptClose }: any) => (
   <Popup
     open={addSubPromptState.isOpen}
     onClose={addSubjectPromptClose}
@@ -39,7 +78,7 @@ const NoSubjectsFound = ({ addSubPromptState, addSubjectPromptClose }) => (
   </Popup>
 );
 
-const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjects, addPeriod, removePeriod }) => {
+const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjects, addPeriod, removePeriod }: TableCellClickPromptProps) => {
   if (subjects.length < 1) {
     return (
       <NoSubjectsFound
@@ -50,11 +89,11 @@ const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjec
   }
   let [selectedSubjectID, setSelectedSubject] = useState(Number(subjects[0]['id']));
 
-  const handleOptionChange = (event) => {
+  const handleOptionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedSubject(Number(event.target.value));
   }
 
-  const subject_options = [];
+  const subject_options: Array<JSX.Element> = [];
   const id_to_sub_name = getSubjectNamesAndIds(subjects);
 
   for (let [id, sub_name] of Object.entries(id_to_sub_name)) {
@@ -63,7 +102,7 @@ const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjec
     );
   }
 
-  const handleSubmit = (event, close) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>, close: any) => {
     addPeriod(selectedSubjectID, {
       day: addSubPromptState.currentCell[0],
       periodNo: addSubPromptState.currentCell[1]
@@ -73,7 +112,7 @@ const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjec
   }
 
   /* Show reset button too if cell already filled */
-  let resetButton = null;
+  let resetButton: any;
   const resetCell = () => {
     removePeriod({
       day: addSubPromptState.currentCell[0],
@@ -82,11 +121,11 @@ const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjec
     addSubjectPromptClose();
   };
   if (addSubPromptState.showResetButton === true) {
-    resetButton = (
+    resetButton =
       <button onClick={resetCell}>
         Reset
       </button>
-    );
+    ;
   }
 
   return (
@@ -116,11 +155,11 @@ const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjec
   );
 }
 
-const TimeTableCell = ({ day_index, period_no, period_info, subjects, fillTableCell, resetTableCell }) => {
+const TimeTableCell = ({ day_index, period_no, period_info, subjects, fillTableCell }: TimeTableCellProps) => {
   let subject_name = '+';
   let is_filled = false;
 
-  if (period_info) {
+  if (period_info && (Object.entries(period_info).length > 0)) {
     const sub_id = period_info.sub_id;
     const subject_info = getSubjectById(subjects, sub_id);
     subject_name = subject_info['short_name'];
@@ -138,14 +177,14 @@ const TimeTableCell = ({ day_index, period_no, period_info, subjects, fillTableC
   );
 }
 
-const TimeTable = ({ periods, subjects, addPeriod, removePeriod }) => {
+const TimeTable = ({ periods, subjects, addPeriod, removePeriod }: TimeTableProps) => {
   let schedule = [];
   let [addSubPromptState, setAddSubPromptState] = useState({
     isOpen: false,
     showResetButton: false,
     currentCell: [1, 1]
   });
-  const fillTableCell = (day_index, period_no, is_filled) => {
+  const fillTableCell = (day_index: number, period_no:number, is_filled: boolean) => {
     setAddSubPromptState({
       isOpen: true,
       showResetButton: is_filled,
@@ -159,7 +198,8 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod }) => {
     });
   }
 
-  for (let day_index in week_days) {
+  for (let day_index_str in week_days) {
+    let day_index = parseInt(day_index_str);
     const day = week_days[day_index];
     /* Create schedule for day */
     let schedule_for_day = [];
@@ -203,7 +243,7 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod }) => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: StoreStateInterface) => {
   const { periods, subjects } = state;
   return { periods, subjects };
 }

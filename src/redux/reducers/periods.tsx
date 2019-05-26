@@ -1,11 +1,16 @@
 import {
   ADD_PERIOD,
   REMOVE_PERIOD } from "../actionTypes";
+import {
+  PeriodsActionsInterface,
+  PeriodsCellInterface
+} from '../../types/reducers';
+import { StatePeriodsDataInterface } from '../../types/store';
 import update from 'immutability-helper';
 
 const initialState = [[],[],[],[],[],[]]; //Six days
 
-const periods = (state = initialState, action) => {
+const periods = (state: StatePeriodsDataInterface = initialState, action: PeriodsActionsInterface) => {
   let day, periodNo;
 
   switch(action.type) {
@@ -25,7 +30,7 @@ const periods = (state = initialState, action) => {
       return update(state, {
         [day]: {
           [periodNo]: {
-            $set: null
+            $unset: ["sub_id"]
           }
         }
       });

@@ -1,16 +1,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { addSubject } from '../redux/actions';
+import {
+  AddSubjectType
+} from '../types/reducers';
 
-const createSubShortName = (sub_name) => {
+const createSubShortName = (sub_name: string): string => {
   const sub_name_no_space = sub_name.replace(/ /g, '');
-  if (sub_name_no_space.length < 1) return null;
+  if (sub_name_no_space.length < 1) return '';
   const name_len = Math.min(3, sub_name_no_space.length);
   return sub_name_no_space.substr(0, name_len).toUpperCase();
 }
 
-const SubjectsForm = ({ addSubject }) => {
-  let sub_name_raw, teacher_name_raw, sub_name_short_raw;
+const SubjectsForm = ({ addSubject } : { addSubject: AddSubjectType }) => {
+  let sub_name_raw: HTMLInputElement, teacher_name_raw: HTMLInputElement, sub_name_short_raw: HTMLInputElement;
   let user_changed_short_name = false;
 
   const resetForm = () => {
@@ -19,7 +22,7 @@ const SubjectsForm = ({ addSubject }) => {
     sub_name_short_raw.value = '';
     user_changed_short_name = false;
   }
-  const formSubmit = e => {
+  const formSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let sub_name = sub_name_raw.value.trim();
     let teacher_name = null;
@@ -44,20 +47,20 @@ const SubjectsForm = ({ addSubject }) => {
 
     addSubject({
       subject_name: sub_name,
-      short_name: sub_short_name,
-      teacher_name: teacher_name
+      short_name: sub_short_name || '',
+      teacher_name: teacher_name || ''
     });
 
     resetForm();
   };
 
-  const handleShortNameInput = (event) => {
+  const handleShortNameInput = (event: React.FormEvent<HTMLInputElement>) => {
     event.preventDefault();
 
     user_changed_short_name = true;
   }
 
-  const handleSubNameInput = (event) => {
+  const handleSubNameInput = (event: React.FormEvent<HTMLInputElement>) => {
     event.preventDefault();
 
     /* Do nothing if user customized short name */
@@ -70,19 +73,19 @@ const SubjectsForm = ({ addSubject }) => {
     <form onSubmit={formSubmit}>
       Subject Name:
       <input
-        ref={node => sub_name_raw = node}
+        ref={(node: HTMLInputElement)=> sub_name_raw = node}
         type="text"
         onInput={handleSubNameInput}
       /><br />
       Subject Short Name:
       <input
-        ref={node => sub_name_short_raw = node}
+        ref={(node: HTMLInputElement) => sub_name_short_raw = node}
         type="text"
         onInput={handleShortNameInput}
       /><br />
       Teacher Name:
-      <input ref={node => teacher_name_raw = node} type="text" /><br />
-      <button type="add">Submit</button>
+      <input ref={(node: HTMLInputElement) => teacher_name_raw = node} type="text" /><br />
+      <button type="submit">Submit</button>
     </form>
   );
 };

@@ -2,8 +2,11 @@ import {
   ADD_SUBJECT,
   REMOVE_SUBJECT
 } from '../actionTypes';
+import {
+  SubjectActionInterface} from '../../types/reducers';
+import { StateSubjectDataInterface } from "../../types/store";
 
-const subjects = (state = [], action) => {
+const subjects = (state: StateSubjectDataInterface[] = [], action: SubjectActionInterface) => {
   const { payload } = action;
   switch (action.type) {
     case ADD_SUBJECT:
@@ -19,7 +22,7 @@ const subjects = (state = [], action) => {
       ];
 
     case REMOVE_SUBJECT:
-      return state.filter(sub => sub.id !== action.id);
+      return state.filter((sub: StateSubjectDataInterface) => sub.id !== action.payload.id);
 
     default:
       return state;
