@@ -10,10 +10,6 @@ import {
   StatePeriodsDataInterface,
   StoreStateInterface
 } from '../types/store';
-import {
-  PeriodInfoInterface,
-  SubjectDataInterface
-} from '../types/actions';
 import { PeriodsCellInterface } from '../types/reducers';
 
 interface TimeTableProps {
