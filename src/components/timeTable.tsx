@@ -28,7 +28,7 @@ interface TimeTableCellProps {
   period_no: number,
   period_info: PeriodsCellInterface,
   subjects: StateSubjectDataInterface[],
-  fillTableCell: any
+  handleTableCellClick: any
 }
 
 interface SubPromptStateInterface {
@@ -155,7 +155,7 @@ const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjec
   );
 }
 
-const TimeTableCell = ({ day_index, period_no, period_info, subjects, fillTableCell }: TimeTableCellProps) => {
+const TimeTableCell = ({ day_index, period_no, period_info, subjects, handleTableCellClick }: TimeTableCellProps) => {
   let subject_name = '+';
   let is_filled = false;
 
@@ -172,7 +172,7 @@ const TimeTableCell = ({ day_index, period_no, period_info, subjects, fillTableC
         padding: "5px",
         border: "1px solid black"
       }}
-      onClick={() => fillTableCell(day_index, period_no, is_filled)}
+      onClick={() => handleTableCellClick(day_index, period_no, is_filled)}
     >{subject_name}</td>
   );
 }
@@ -184,7 +184,7 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod }: TimeTableProp
     showResetButton: false,
     currentCell: [1, 1]
   });
-  const fillTableCell = (day_index: number, period_no:number, is_filled: boolean) => {
+  const handleTableCellClick = (day_index: number, period_no:number, is_filled: boolean) => {
     setAddSubPromptState({
       isOpen: true,
       showResetButton: is_filled,
@@ -214,7 +214,7 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod }: TimeTableProp
           period_info={period_info}
           subjects={subjects}
           key={i}
-          fillTableCell={fillTableCell}
+          handleTableCellClick={handleTableCellClick}
         />
       );
     }
