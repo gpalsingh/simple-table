@@ -158,8 +158,10 @@ const TimeTableCell = ({ day_index, period_no, period_info, subjects, handleTabl
   if (period_info && (Object.entries(period_info).length > 0)) {
     const sub_id = period_info.sub_id;
     const subject_info = getSubjectById(subjects, sub_id);
-    subject_name = subject_info['short_name'];
-    is_filled = true;
+    if (subject_info) {
+      subject_name = subject_info['short_name'];
+      is_filled = true;
+    }
   }
 
   return (

@@ -11,6 +11,7 @@ const subjects = (state: StateSubjectDataInterface[] = [], action: SubjectAction
   switch (action.type) {
     case ADD_SUBJECT:
       const {id, subjectData} = payload;
+      if (!subjectData) return state;
       return [
         ...state,
         {

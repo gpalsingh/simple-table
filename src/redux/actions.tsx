@@ -23,7 +23,7 @@ export const addSubject = (subjectData: SubjectDataInterface): SubjectActionInte
   }
 });
 
-export const removeSubject = (subjectID: number) => ({
+export const removeSubject = (subjectID: number): SubjectActionInterface => ({
   type: REMOVE_SUBJECT,
   payload: {
     id: subjectID
