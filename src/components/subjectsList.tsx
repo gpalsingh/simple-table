@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { removeSubject } from '../redux/actions';
+import Popup from "reactjs-popup";
 import {
   StateSubjectDataInterface,
   StoreStateInterface
@@ -15,13 +16,13 @@ interface SubjectsListInterface {
 }
 interface SubjectRemoveButtonInterface {
   sub_id: number,
-  removeSubject: RemoveSubjectType
+  removeSubButtonClick: any
 }
 
-const SubjectRemoveButton = ({ sub_id, removeSubject }: SubjectRemoveButtonInterface) => {
+const SubjectRemoveButton = ({ sub_id, removeSubButtonClick }: SubjectRemoveButtonInterface) => {
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    removeSubject(sub_id);
+    removeSubButtonClick(sub_id);
   }
   return (
     <button onClick={handleClick}>
@@ -33,6 +34,30 @@ const SubjectRemoveButton = ({ sub_id, removeSubject }: SubjectRemoveButtonInter
 const SubjectsList = ({ subjects, removeSubject }: SubjectsListInterface) => {
   let listItems = [];
   let subjects_table;
+  let [removeSubPromptState, setRemoveSubPromptState] = useState({
+    isOpen: false,
+    sub_id: 0
+  });
+
+  const handleRemoveSubButtonClick = (sub_id: number) => {
+    setRemoveSubPromptState({
+      isOpen: true,
+      sub_id: sub_id
+    });
+  };
+
+  const closeRemoveSubPrompt = () => {
+    setRemoveSubPromptState({
+      isOpen: false,
+      sub_id: 0
+    });
+  };
+
+  const confirmRemoveSub = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    removeSubject(removeSubPromptState.sub_id);
+    closeRemoveSubPrompt();
+  }
 
   for (let subject of subjects) {
     listItems.push(
@@ -43,7 +68,7 @@ const SubjectsList = ({ subjects, removeSubject }: SubjectsListInterface) => {
         <td>
           <SubjectRemoveButton
             sub_id={subject.id}
-            removeSubject={removeSubject}
+            removeSubButtonClick={handleRemoveSubButtonClick}
           />
         </td>
       </tr>
@@ -68,6 +93,25 @@ const SubjectsList = ({ subjects, removeSubject }: SubjectsListInterface) => {
 
   return (
     <div>
+      <Popup
+        open={removeSubPromptState.isOpen}
+        onClose={closeRemoveSubPrompt}
+        modal
+      >
+        {close => (
+          <form onSubmit={confirmRemoveSub}>
+            <div>
+              This action is irreversible. Are you sure?
+            </div>
+            <div>
+              <input type="submit" value="Yes, remove" />
+              <button onClick={close}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+      </Popup>
       {subjects_table}
     </div>
   );
