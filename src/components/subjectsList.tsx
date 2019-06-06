@@ -18,6 +18,15 @@ interface SubjectRemoveButtonInterface {
   sub_id: number,
   removeSubButtonClick: any
 }
+interface removeSubPromptStateInterface {
+  isOpen: boolean,
+  sub_id: number
+}
+interface RemoveSubjectPopupInterface {
+  removeSubPromptState: removeSubPromptStateInterface,
+  closeRemoveSubPrompt: () => void,
+  confirmRemoveSub: (event: React.FormEvent<HTMLFormElement>) => void
+}
 
 const SubjectRemoveButton = ({ sub_id, removeSubButtonClick }: SubjectRemoveButtonInterface) => {
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -28,6 +37,30 @@ const SubjectRemoveButton = ({ sub_id, removeSubButtonClick }: SubjectRemoveButt
     <button onClick={handleClick}>
       Remove
     </button>
+  );
+}
+
+const RemoveSubjectPopup = ({ removeSubPromptState, closeRemoveSubPrompt, confirmRemoveSub}: RemoveSubjectPopupInterface) => {
+  return (
+    <Popup
+        open={removeSubPromptState.isOpen}
+        onClose={closeRemoveSubPrompt}
+        modal
+      >
+        {close => (
+          <form onSubmit={confirmRemoveSub}>
+            <div>
+              This action is irreversible. Are you sure?
+            </div>
+            <div>
+              <input type="submit" value="Yes, remove" />
+              <button onClick={close}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+      </Popup>
   );
 }
 
@@ -93,25 +126,11 @@ const SubjectsList = ({ subjects, removeSubject }: SubjectsListInterface) => {
 
   return (
     <div>
-      <Popup
-        open={removeSubPromptState.isOpen}
-        onClose={closeRemoveSubPrompt}
-        modal
-      >
-        {close => (
-          <form onSubmit={confirmRemoveSub}>
-            <div>
-              This action is irreversible. Are you sure?
-            </div>
-            <div>
-              <input type="submit" value="Yes, remove" />
-              <button onClick={close}>
-                Cancel
-              </button>
-            </div>
-          </form>
-        )}
-      </Popup>
+      <RemoveSubjectPopup
+        removeSubPromptState={removeSubPromptState}
+        closeRemoveSubPrompt={closeRemoveSubPrompt}
+        confirmRemoveSub={confirmRemoveSub}
+      />
       {subjects_table}
     </div>
   );
