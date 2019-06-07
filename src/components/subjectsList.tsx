@@ -9,14 +9,18 @@ import {
 import {
   RemoveSubjectType
 } from '../types/reducers';
+import { EditSubStateType } from '../types/subjects';
 
 interface SubjectsListInterface {
   subjects: StateSubjectDataInterface[],
-  removeSubject: RemoveSubjectType
+  removeSubject: RemoveSubjectType,
+  handleEditSubClick: (id: number) => void,
+  editSubState: EditSubStateType
 }
 interface SubjectRemoveButtonInterface {
   sub_id: number,
-  removeSubButtonClick: any
+  removeSubButtonClick: any,
+  editSubState: EditSubStateType
 }
 interface removeSubPromptStateInterface {
   isOpen: boolean,
@@ -28,13 +32,16 @@ interface RemoveSubjectPopupInterface {
   confirmRemoveSub: (event: React.FormEvent<HTMLFormElement>) => void
 }
 
-const SubjectRemoveButton = ({ sub_id, removeSubButtonClick }: SubjectRemoveButtonInterface) => {
+const SubjectRemoveButton = ({ sub_id, removeSubButtonClick, editSubState }: SubjectRemoveButtonInterface) => {
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     removeSubButtonClick(sub_id);
   }
   return (
-    <button onClick={handleClick}>
+    <button
+      onClick={handleClick}
+      disabled={editSubState.edit_mode_on}
+    >
       Remove
     </button>
   );
@@ -64,9 +71,10 @@ const RemoveSubjectPopup = ({ removeSubPromptState, closeRemoveSubPrompt, confir
   );
 }
 
-const SubjectsList = ({ subjects, removeSubject }: SubjectsListInterface) => {
+const SubjectsList = ({ subjects, removeSubject, handleEditSubClick, editSubState }: SubjectsListInterface) => {
   let listItems = [];
   let subjects_table;
+  /* Prompt state management */
   let [removeSubPromptState, setRemoveSubPromptState] = useState({
     isOpen: false,
     sub_id: 0
@@ -92,6 +100,7 @@ const SubjectsList = ({ subjects, removeSubject }: SubjectsListInterface) => {
     closeRemoveSubPrompt();
   }
 
+  /* Create subjects list */
   for (let subject of subjects) {
     listItems.push(
       <tr key={subject.id} id={subject.id.toString()}>
@@ -102,7 +111,16 @@ const SubjectsList = ({ subjects, removeSubject }: SubjectsListInterface) => {
           <SubjectRemoveButton
             sub_id={subject.id}
             removeSubButtonClick={handleRemoveSubButtonClick}
+            editSubState={editSubState}
           />
+        </td>
+        <td>
+          <button
+            onClick={() => handleEditSubClick(subject.id)}
+            disabled={editSubState.edit_mode_on}
+          >
+            Edit
+          </button>
         </td>
       </tr>
     );

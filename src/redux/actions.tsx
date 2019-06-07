@@ -2,7 +2,8 @@ import {
   ADD_SUBJECT,
   REMOVE_SUBJECT,
   ADD_PERIOD,
-  REMOVE_PERIOD } from "./actionTypes";
+  REMOVE_PERIOD,
+  UPDATE_SUBJECT} from "./actionTypes";
 
 import {
   SubjectDataInterface,
@@ -27,6 +28,14 @@ export const removeSubject = (subjectID: number): SubjectActionInterface => ({
   type: REMOVE_SUBJECT,
   payload: {
     id: subjectID
+  }
+});
+
+export const updateSubject = (sub_id: number, subjectData: SubjectDataInterface): SubjectActionInterface => ({
+  type: UPDATE_SUBJECT,
+  payload: {
+    id: sub_id,
+    subjectData
   }
 });
 
