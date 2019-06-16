@@ -2,8 +2,7 @@ import {
   ADD_PERIOD,
   REMOVE_PERIOD } from "../actionTypes";
 import {
-  PeriodsActionsInterface,
-  PeriodsCellInterface
+  PeriodsActionsInterface
 } from '../../types/reducers';
 import { StatePeriodsDataInterface } from '../../types/store';
 import update from 'immutability-helper';

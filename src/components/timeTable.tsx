@@ -66,7 +66,7 @@ const NoSubjectsFound = ({ addSubPromptState, addSubjectPromptClose }: any) => (
             Add now
           </Link>
           <button onClick={close}>
-            Ok
+            Cancel
           </button>
         </div>
       </div>
@@ -75,7 +75,11 @@ const NoSubjectsFound = ({ addSubPromptState, addSubjectPromptClose }: any) => (
 );
 
 const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjects, addPeriod, removePeriod }: TableCellClickPromptProps) => {
-  if (subjects.length < 1) {
+  /* Set initial state as the id or -1 if no subjects available
+     useState must come before all conditional returns */
+  let [selectedSubjectID, setSelectedSubjectID] = useState(subjects[0] ? subjects[0]["id"] : -1);
+  /* Prompt to add subjects if none available */
+  if (selectedSubjectID < 0) {
     return (
       <NoSubjectsFound
       addSubPromptState={addSubPromptState}
@@ -83,19 +87,10 @@ const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjec
       />
     );
   }
-  let [selectedSubjectID, setSelectedSubject] = useState(Number(subjects[0]['id']));
 
+  /* Callbacks */
   const handleOptionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSubject(Number(event.target.value));
-  }
-
-  const subject_options: Array<JSX.Element> = [];
-  const id_to_sub_name = getSubjectNamesAndIds(subjects);
-
-  for (let [id, sub_name] of Object.entries(id_to_sub_name)) {
-    subject_options.push(
-      <option value={id} key={id}>{sub_name}</option>
-    );
+    setSelectedSubjectID(Number(event.target.value));
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>, close: any) => {
@@ -105,6 +100,16 @@ const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjec
     });
     event.preventDefault()
     close()
+  }
+
+  /* Make subject options list */
+  const subject_options: Array<JSX.Element> = [];
+  const id_to_sub_name = getSubjectNamesAndIds(subjects);
+
+  for (let [id, sub_name] of Object.entries(id_to_sub_name)) {
+    subject_options.push(
+      <option value={id} key={id}>{sub_name}</option>
+    );
   }
 
   /* Show reset button too if cell already filled */

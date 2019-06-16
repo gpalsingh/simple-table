@@ -59,7 +59,7 @@ const SubjectsForm = ({ subjects, addSubject, updateSubject, editSubState, setEd
         }
       }
     },
-    [editSubState]
+    [editSubState, subjects, setEditingDone, setEditingStarted, formState]
   );
 
   const resetForm = () => {
