@@ -11,6 +11,14 @@ import {
   StoreStateInterface,
   StateSubjectDataInterface
 } from '../types/store';
+import {
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  Button,
+  FormFeedback
+} from 'reactstrap';
 
 interface SubjectsFormProps {
   subjects: StateSubjectDataInterface[],
@@ -33,8 +41,13 @@ const SubjectsForm = ({ subjects, addSubject, updateSubject, editSubState, setEd
     sub_name_value: '',
     sub_name_short_value: '',
     teacher_name_value: '',
+    invalid_field_id: '',
     user_changed_short_name: false
   };
+  const SUBJECT_NAME_ID = "subjectName";
+  const SUBJECT_SHORT_NAME_ID = "subjectShortName";
+  const TEACHER_NAME_ID = "teacherName";
+  let sub_name_input_el: HTMLInputElement | null = null;
   let [formState, setFormState] = useState(initial_state);
 
   useLayoutEffect(
@@ -56,10 +69,13 @@ const SubjectsForm = ({ subjects, addSubject, updateSubject, editSubState, setEd
             teacher_name_value: oldSubData.teacher_name,
             user_changed_short_name: true
           });
+          if (sub_name_input_el !== null) {
+            sub_name_input_el.focus();
+          }
         }
       }
     },
-    [editSubState, subjects, setEditingDone, setEditingStarted, formState]
+    [editSubState, subjects, setEditingDone, setEditingStarted, formState, sub_name_input_el]
   );
 
   const resetForm = () => {
@@ -75,18 +91,25 @@ const SubjectsForm = ({ subjects, addSubject, updateSubject, editSubState, setEd
     let teacher_name = '';
     let sub_short_name = '';
 
-    /* Form validation */
+    /* Form validation
+       Only report the first error enountered */
     if (!sub_name) {
-      alert("The name should have a value");
+      setFormState({
+        ...formState,
+        invalid_field_id: SUBJECT_NAME_ID
+      });
       return;
     }
     if (formState.teacher_name_value) {
       teacher_name = formState.teacher_name_value.trim();
     }
-    if (!formState.sub_name_short_value) {
+    if (!(formState.sub_name_short_value || formState.user_changed_short_name)) {
       sub_short_name = createSubShortName(sub_name);
-    } else if (formState.sub_name_short_value.length < 1) {
-      alert("Subject short name is required");
+    } else if (formState.sub_name_short_value.length < 2) {
+      setFormState({
+        ...formState,
+        invalid_field_id: SUBJECT_SHORT_NAME_ID
+      });
       return;
     } else {
       sub_short_name = formState.sub_name_short_value;
@@ -151,39 +174,67 @@ const SubjectsForm = ({ subjects, addSubject, updateSubject, editSubState, setEd
   }
 
   /* Show different buttons depending on if we are editing */
-  let submit_button_text = "Submit";
+  let submit_button_text = "Add";
   let cancel_button = (
-    <button onClick={resetForm}>
+    <Button onClick={resetForm} color="danger">
       Cancel
-    </button>
+    </Button>
   );
   if (editSubState.edit_mode_on) {
     submit_button_text = "Update"
   }
 
   return(
-    <form onSubmit={formSubmit}>
-      Subject Name:
-      <input
-        value={formState.sub_name_value}
-        type="text"
-        onChange={handleSubNameInput}
-      /><br />
-      Subject Short Name:
-      <input
-        value={formState.sub_name_short_value}
-        type="text"
-        onChange={handleShortNameInput}
-      /><br />
-      Teacher Name:
-      <input
-        value={formState.teacher_name_value}
-        type="text"
-        onChange={handleTeacherNameInput}
-      /><br />
-      <button type="submit">{submit_button_text}</button>
+    <Form onSubmit={formSubmit}>
+      <FormGroup>
+        <Label for={SUBJECT_NAME_ID}>Subject Name</Label>
+        <Input
+          value={formState.sub_name_value}
+          type="text"
+          onChange={handleSubNameInput}
+          id={SUBJECT_NAME_ID}
+          placeholder="example: Science"
+          invalid={formState.invalid_field_id === SUBJECT_NAME_ID}
+          innerRef={(node: HTMLInputElement) => {sub_name_input_el = node}}
+        />
+        {(formState.invalid_field_id === SUBJECT_NAME_ID) ?
+          (<FormFeedback>
+            Subject name is required
+          </FormFeedback>) : (null)}
+      </FormGroup>
+      <FormGroup>
+        <Label for={SUBJECT_SHORT_NAME_ID}>Subject Short Name</Label>
+        <Input
+          id={SUBJECT_SHORT_NAME_ID}
+          value={formState.sub_name_short_value}
+          type="text"
+          onChange={handleShortNameInput}
+          placeholder="example: SCI"
+          invalid={formState.invalid_field_id === SUBJECT_SHORT_NAME_ID}
+        />
+        {(formState.invalid_field_id === SUBJECT_SHORT_NAME_ID) ?
+          (<FormFeedback>
+            Subject short name must be at least two characters
+          </FormFeedback>) : (null)}
+      </FormGroup>
+      <FormGroup>
+        <Label for={TEACHER_NAME_ID}>Teacher's Name</Label>
+        <Input
+          id={TEACHER_NAME_ID}
+          value={formState.teacher_name_value}
+          type="text"
+          onChange={handleTeacherNameInput}
+          placeholder="example: Ms. Smith"
+          invalid={formState.invalid_field_id === TEACHER_NAME_ID}
+        />
+        {(formState.invalid_field_id === TEACHER_NAME_ID) ?
+          (<FormFeedback>
+            Error with teacher name
+          </FormFeedback>) : (null)}
+      </FormGroup>
+      <Button color="primary" type="submit">{submit_button_text}</Button>
       {editSubState.edit_mode_on && cancel_button}
-    </form>
+    </Form>
   );
 };
 

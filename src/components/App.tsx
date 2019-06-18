@@ -1,25 +1,26 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import SubjectsPage from './subjects';
 import TimeTable from './timeTable';
+import { AppNavBar } from './navbar';
 
 const LandingPage = () => (
   <div>
+    <h3>Manage Timetable</h3>
     <TimeTable />
-    <Link to="/manageSubjects/">Manage subject</Link>
   </div>
 );
 
 const App = () => (
   <Router>
-    <Link to="/">
-      <h3>
-        SimpleTable
-      </h3>
-    </Link>
-    <Route path="/" exact component={LandingPage} />
-    <Route path="/manageSubjects/" component={SubjectsPage} />
+    <div className="AppBody">
+      <AppNavBar />
+      <div className="content container">
+        <Route path="/" exact component={LandingPage} />
+        <Route path="/manageSubjects/" component={SubjectsPage} />
+      </div>
+    </div>
   </Router>
 );
 

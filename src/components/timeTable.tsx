@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import Popup from "reactjs-popup";
 import { connect } from 'react-redux';
-import { Link } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 
 import { addPeriod, removePeriod } from '../redux/actions';
 import { getSubjectById, getSubjectNamesAndIds } from '../utils/redux';
@@ -11,6 +10,8 @@ import {
   StoreStateInterface
 } from '../types/store';
 import { PeriodsCellInterface } from '../types/reducers';
+import { Table, Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
+import '../css/timeTable.css';
 
 interface TimeTableProps {
   periods: StatePeriodsDataInterface,
@@ -35,7 +36,7 @@ interface SubPromptStateInterface {
 
 interface TableCellClickPromptProps {
   addSubPromptState: SubPromptStateInterface,
-  addSubjectPromptClose:any,
+  toggleAddSubjectPrompt:any,
   subjects: StateSubjectDataInterface[],
   addPeriod: typeof addPeriod,
   removePeriod: typeof removePeriod
@@ -52,29 +53,43 @@ const week_days = [
 
 const max_periods = 9;
 
-const NoSubjectsFound = ({ addSubPromptState, addSubjectPromptClose }: any) => (
-  <Popup
-    open={addSubPromptState.isOpen}
-    onClose={addSubjectPromptClose}
-    modal
-  >
-    {close => (
-      <div>
-        Add some subjects first
-        <div>
-          <Link to="/manageSubjects/">
-            Add now
-          </Link>
-          <button onClick={close}>
-            Cancel
-          </button>
-        </div>
-      </div>
-    )}
-  </Popup>
-);
+const NoSubjectsFound = ({ addSubPromptState, toggleAddSubjectPrompt }: any) => {
+  /*
+  <Link to="/manageSubjects/" style={{ textDecoration: 'none', color: "white" }}>
+            Add Subjects
+          </Link>*/
+  let [isRedirected, setIsRedirected] = useState(false);
+  const toggleIsRedirected = () => {
+    setIsRedirected(!isRedirected);
+  }
 
-const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjects, addPeriod, removePeriod }: TableCellClickPromptProps) => {
+  if (isRedirected) {
+    return(
+      <Redirect to="/manageSubjects/" />
+    );
+  }
+  return (
+    <Modal
+      isOpen={addSubPromptState.isOpen}
+      toggle={toggleAddSubjectPrompt}
+    >
+      <ModalHeader toggle={toggleAddSubjectPrompt}>
+        No Subjects found
+      </ModalHeader>
+      <ModalBody>
+        You need to add some subjects before entering them into the table.
+      </ModalBody>
+      <ModalFooter>
+        <Button color="primary" onClick={toggleIsRedirected}>
+          Add Subjects
+        </Button>
+        <Button color="secondary" onClick={toggleAddSubjectPrompt}>Later</Button>
+      </ModalFooter>
+    </Modal>
+  );
+};
+
+const TableCellClickPrompt = ({ addSubPromptState, toggleAddSubjectPrompt, subjects, addPeriod, removePeriod }: TableCellClickPromptProps) => {
   /* Set initial state as the id or -1 if no subjects available
      useState must come before all conditional returns */
   let [selectedSubjectID, setSelectedSubjectID] = useState(subjects[0] ? subjects[0]["id"] : -1);
@@ -83,7 +98,7 @@ const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjec
     return (
       <NoSubjectsFound
       addSubPromptState={addSubPromptState}
-      addSubjectPromptClose={addSubjectPromptClose}
+      toggleAddSubjectPrompt={toggleAddSubjectPrompt}
       />
     );
   }
@@ -93,13 +108,12 @@ const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjec
     setSelectedSubjectID(Number(event.target.value));
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>, close: any) => {
+  const handleSubmit = () => {
     addPeriod(selectedSubjectID, {
       day: addSubPromptState.currentCell[0],
       periodNo: addSubPromptState.currentCell[1]
     });
-    event.preventDefault()
-    close()
+    toggleAddSubjectPrompt();
   }
 
   /* Make subject options list */
@@ -119,40 +133,34 @@ const TableCellClickPrompt = ({ addSubPromptState, addSubjectPromptClose, subjec
       day: addSubPromptState.currentCell[0],
       periodNo: addSubPromptState.currentCell[1]
     });
-    addSubjectPromptClose();
+    toggleAddSubjectPrompt();
   };
   if (addSubPromptState.showResetButton === true) {
-    resetButton =
-      <button onClick={resetCell}>
-        Reset
-      </button>
-    ;
+    resetButton = <Button color="danger" onClick={resetCell}>Reset</Button>;
   }
 
   return (
-    <Popup
-      open={addSubPromptState.isOpen}
-      onClose={addSubjectPromptClose}
-      modal
+    <Modal
+      isOpen={addSubPromptState.isOpen}
+      toggle={toggleAddSubjectPrompt}
     >
-      {close => (
-        <form onSubmit={(event) => handleSubmit(event, close)}>
-          <label>
-            Select subject
-            <select value={selectedSubjectID} onChange={handleOptionChange}>
-              {subject_options}
-            </select>
-          </label>
-          <div>
-            <input type="submit" value="Submit" />
-            {resetButton}
-            <button onClick={close}>
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
-    </Popup>
+      <ModalHeader
+        toggle={toggleAddSubjectPrompt}
+      >Manage period</ModalHeader>
+      <ModalBody>
+        <label>
+          Select subject:
+          <select value={selectedSubjectID} onChange={handleOptionChange}>
+            {subject_options}
+          </select>
+        </label>
+      </ModalBody>
+      <ModalFooter>
+        <Button color="primary" onClick={handleSubmit}>Set subject</Button>
+        {resetButton}
+        <Button color="secondary" onClick={toggleAddSubjectPrompt}>Cancel</Button>
+      </ModalFooter>
+    </Modal>
   );
 }
 
@@ -171,10 +179,7 @@ const TimeTableCell = ({ day_index, period_no, period_info, subjects, handleTabl
 
   return (
     <td
-      style={{
-        padding: "5px",
-        border: "1px solid black"
-      }}
+      className="periodCell"
       onClick={() => handleTableCellClick(day_index, period_no, is_filled)}
     >{subject_name}</td>
   );
@@ -194,10 +199,10 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod }: TimeTableProp
       currentCell: [day_index, period_no]
     });
   }
-  const addSubjectPromptClose = () => {
+  const toggleAddSubjectPrompt = () => {
     setAddSubPromptState({
       ...addSubPromptState,
-      isOpen: false,
+      isOpen: (!addSubPromptState.isOpen),
     });
   }
 
@@ -231,17 +236,17 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod }: TimeTableProp
     <div>
     <TableCellClickPrompt
       addSubPromptState={addSubPromptState}
-      addSubjectPromptClose={addSubjectPromptClose}
+      toggleAddSubjectPrompt={toggleAddSubjectPrompt}
       subjects={subjects}
       addPeriod={addPeriod}
       removePeriod={removePeriod}
     />
 
-    <table style={{border: "1px solid black", borderSpacing: "15px", borderCollapse: "separate"}}>
+    <Table bordered responsive className="text-center">
       <tbody>
         {schedule}
       </tbody>
-    </table>
+    </Table>
     </div>
   );
 };

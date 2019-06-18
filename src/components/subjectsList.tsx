@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { removeSubject } from '../redux/actions';
-import Popup from "reactjs-popup";
 import {
   StateSubjectDataInterface,
   StoreStateInterface
@@ -10,6 +9,16 @@ import {
   RemoveSubjectType
 } from '../types/reducers';
 import { EditSubStateType } from '../types/subjects';
+import {
+  Table,
+  Button,
+  Jumbotron,
+  Container,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter
+} from 'reactstrap';
 
 interface SubjectsListInterface {
   subjects: StateSubjectDataInterface[],
@@ -28,8 +37,8 @@ interface removeSubPromptStateInterface {
 }
 interface RemoveSubjectPopupInterface {
   removeSubPromptState: removeSubPromptStateInterface,
-  closeRemoveSubPrompt: () => void,
-  confirmRemoveSub: (event: React.FormEvent<HTMLFormElement>) => void
+  toggleRemoveSubPrompt: () => void,
+  confirmRemoveSub: (event: React.MouseEvent<HTMLElement>) => void
 }
 
 const SubjectRemoveButton = ({ sub_id, removeSubButtonClick, editSubState }: SubjectRemoveButtonInterface) => {
@@ -38,41 +47,43 @@ const SubjectRemoveButton = ({ sub_id, removeSubButtonClick, editSubState }: Sub
     removeSubButtonClick(sub_id);
   }
   return (
-    <button
+    <Button
+      color="danger"
       onClick={handleClick}
       disabled={editSubState.edit_mode_on}
     >
       Remove
-    </button>
+    </Button>
   );
 }
 
-const RemoveSubjectPopup = ({ removeSubPromptState, closeRemoveSubPrompt, confirmRemoveSub}: RemoveSubjectPopupInterface) => {
+const RemoveSubjectPopup = ({ removeSubPromptState, toggleRemoveSubPrompt, confirmRemoveSub}: RemoveSubjectPopupInterface) => {
   return (
-    <Popup
-        open={removeSubPromptState.isOpen}
-        onClose={closeRemoveSubPrompt}
-        modal
-      >
-        {close => (
-          <form onSubmit={confirmRemoveSub}>
-            <div>
-              This action is irreversible. Are you sure?
-            </div>
-            <div>
-              <input type="submit" value="Yes, remove" />
-              <button onClick={close}>
-                Cancel
-              </button>
-            </div>
-          </form>
-        )}
-      </Popup>
+    <Modal
+      isOpen={removeSubPromptState.isOpen}
+      toggle={toggleRemoveSubPrompt}
+    >
+      <ModalHeader toggle={toggleRemoveSubPrompt}>
+        Confirm remove subject
+      </ModalHeader>
+      <ModalBody>
+        This action is irreversible. Are you sure?
+      </ModalBody>
+      <ModalFooter>
+        <Button type="submit" color="danger" onClick={confirmRemoveSub}>
+          Yes, remove
+        </Button>
+        <Button onClick={toggleRemoveSubPrompt} color="secondary">
+          Cancel
+        </Button>
+      </ModalFooter>
+    </Modal>
   );
 }
 
 const SubjectsList = ({ subjects, removeSubject, handleEditSubClick, editSubState }: SubjectsListInterface) => {
   let listItems = [];
+  let subjectsExist = false;
   let subjects_table;
   /* Prompt state management */
   let [removeSubPromptState, setRemoveSubPromptState] = useState({
@@ -87,17 +98,17 @@ const SubjectsList = ({ subjects, removeSubject, handleEditSubClick, editSubStat
     });
   };
 
-  const closeRemoveSubPrompt = () => {
+  const toggleRemoveSubPrompt = () => {
     setRemoveSubPromptState({
-      isOpen: false,
-      sub_id: 0
+      ...removeSubPromptState,
+      isOpen: !removeSubPromptState.isOpen,
     });
   };
 
-  const confirmRemoveSub = (event: React.FormEvent<HTMLFormElement>) => {
+  const confirmRemoveSub = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     removeSubject(removeSubPromptState.sub_id);
-    closeRemoveSubPrompt();
+    toggleRemoveSubPrompt();
   }
 
   /* Create subjects list */
@@ -115,12 +126,13 @@ const SubjectsList = ({ subjects, removeSubject, handleEditSubClick, editSubStat
           />
         </td>
         <td>
-          <button
+          <Button
+            color="primary"
             onClick={() => handleEditSubClick(subject.id)}
             disabled={editSubState.edit_mode_on}
           >
             Edit
-          </button>
+          </Button>
         </td>
       </tr>
     );
@@ -128,27 +140,42 @@ const SubjectsList = ({ subjects, removeSubject, handleEditSubClick, editSubStat
 
   /* Show table headers only if subjects exist */
   if (listItems.length > 0) {
+    subjectsExist = true;
     subjects_table = (
-      <table>
-        <tbody>
+      <Table striped responsive>
+        <thead>
           <tr>
             <th>Subject name</th>
             <th>Short name</th>
             <th>Teacher's name</th>
+            <th>Actions</th>
           </tr>
+        </thead>
+        <tbody>
           {listItems}
         </tbody>
-      </table>
+      </Table>
     );
   }
 
+  if (!subjectsExist) {
+    return (
+      <Jumbotron fluid>
+        <Container fluid>
+          <h3 className="display-3">Your subjects will appear here</h3>
+          <p className="lead">To get started add a subject using the form above.</p>
+        </Container>
+      </Jumbotron>
+    );
+  }
   return (
     <div>
       <RemoveSubjectPopup
         removeSubPromptState={removeSubPromptState}
-        closeRemoveSubPrompt={closeRemoveSubPrompt}
+        toggleRemoveSubPrompt={toggleRemoveSubPrompt}
         confirmRemoveSub={confirmRemoveSub}
       />
+      <h4>Subjects List</h4>
       {subjects_table}
     </div>
   );

@@ -1,0 +1,7 @@
+.periodCell {
+  cursor: pointer;
+}
+
+.periodCell:hover {
+  background-color: beige;
+}

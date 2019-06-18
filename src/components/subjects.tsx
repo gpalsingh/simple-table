@@ -31,11 +31,12 @@ const SubjectsPage = () => {
 
   return (
     <div>
+      <h3>Manage Subjects</h3>
       <SubjectsForm
         editSubState={editSubState}
         setEditingStarted={setEditingStarted}
         setEditingDone={setEditingDone}
-      />
+      /><br /><br />
       <SubjectsList
         editSubState={editSubState}
         handleEditSubClick={handleEditSubClick}
