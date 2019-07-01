@@ -124,8 +124,6 @@ const SubjectsList = ({ subjects, removeSubject, handleEditSubClick, editSubStat
             removeSubButtonClick={handleRemoveSubButtonClick}
             editSubState={editSubState}
           />
-        </td>
-        <td>
           <Button
             color="primary"
             onClick={() => handleEditSubClick(subject.id)}
