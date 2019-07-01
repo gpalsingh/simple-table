@@ -19,6 +19,7 @@ import {
   ModalBody,
   ModalFooter
 } from 'reactstrap';
+import { toast } from 'react-toastify';
 
 interface SubjectsListInterface {
   subjects: StateSubjectDataInterface[],
@@ -109,6 +110,7 @@ const SubjectsList = ({ subjects, removeSubject, handleEditSubClick, editSubStat
     event.preventDefault();
     removeSubject(removeSubPromptState.sub_id);
     toggleRemoveSubPrompt();
+    toast.error("Removed a subject");
   }
 
   /* Create subjects list */

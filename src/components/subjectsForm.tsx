@@ -1,6 +1,7 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 import { addSubject, updateSubject } from '../redux/actions';
+import { toast } from 'react-toastify';
 import {
   AddSubjectType,
   UpdateSubjectType
@@ -121,12 +122,16 @@ const SubjectsForm = ({ subjects, addSubject, updateSubject, editSubState, setEd
         short_name: sub_short_name,
         teacher_name: teacher_name
       });
+      /* Show toast showing update success */
+      toast.success("Updated subject " + sub_name);
     } else {
       addSubject({
         subject_name: sub_name,
         short_name: sub_short_name,
         teacher_name: teacher_name
       });
+      /* Show toast showing addition success */
+      toast.info("Added subject " + sub_name);
     }
 
     resetForm();
