@@ -19,6 +19,7 @@ const LandingPage = () => (
 const App = () => (
   <Router>
     <div className="AppBody">
+      <link rel="manifest" href="/manifest.json" />
       <AppNavBar />
       <div className="content container">
         <ToastContainer
