@@ -1,7 +1,7 @@
 import { PeriodsCellInterface } from './reducers';
 
 export interface StateSubjectDataInterface {
-  id: number;
+  id: string;
   name: string;
   short_name: string;
   teacher_name: string;

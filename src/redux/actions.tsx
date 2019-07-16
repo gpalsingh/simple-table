@@ -14,24 +14,24 @@ import {
   SubjectActionInterface
 } from '../types/reducers';
 
-let nextSubjectId = 0;
+import uuidv1 from 'uuid/v1';
 
 export const addSubject = (subjectData: SubjectDataInterface): SubjectActionInterface => ({
   type: ADD_SUBJECT,
   payload: {
-    id: nextSubjectId++,
+    id: uuidv1(),
     subjectData
   }
 });
 
-export const removeSubject = (subjectID: number): SubjectActionInterface => ({
+export const removeSubject = (subjectID: string): SubjectActionInterface => ({
   type: REMOVE_SUBJECT,
   payload: {
     id: subjectID
   }
 });
 
-export const updateSubject = (sub_id: number, subjectData: SubjectDataInterface): SubjectActionInterface => ({
+export const updateSubject = (sub_id: string, subjectData: SubjectDataInterface): SubjectActionInterface => ({
   type: UPDATE_SUBJECT,
   payload: {
     id: sub_id,
@@ -39,12 +39,12 @@ export const updateSubject = (sub_id: number, subjectData: SubjectDataInterface)
   }
 });
 
-export const addPeriod = (subjectID: number, periodInfo: PeriodInfoInterface): PeriodsActionsInterface => ({
+export const addPeriod = (subjectID: string, periodInfo: PeriodInfoInterface): PeriodsActionsInterface => ({
   /*
   {
     type: 'ADD_PERIOD',
     payload: {
-      id: 2,
+      id: "2",
       periodInfo: {
         day: 3,
         periodNo: 2

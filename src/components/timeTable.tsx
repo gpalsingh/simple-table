@@ -92,9 +92,9 @@ const NoSubjectsFound = ({ addSubPromptState, toggleAddSubjectPrompt }: any) => 
 const TableCellClickPrompt = ({ addSubPromptState, toggleAddSubjectPrompt, subjects, addPeriod, removePeriod }: TableCellClickPromptProps) => {
   /* Set initial state as the id or -1 if no subjects available
      useState must come before all conditional returns */
-  let [selectedSubjectID, setSelectedSubjectID] = useState(subjects[0] ? subjects[0]["id"] : -1);
+  let [selectedSubjectID, setSelectedSubjectID] = useState(subjects[0] ? subjects[0]["id"] : "-1");
   /* Prompt to add subjects if none available */
-  if (selectedSubjectID < 0) {
+  if (selectedSubjectID === "-1") {
     return (
       <NoSubjectsFound
       addSubPromptState={addSubPromptState}
@@ -105,7 +105,7 @@ const TableCellClickPrompt = ({ addSubPromptState, toggleAddSubjectPrompt, subje
 
   /* Callbacks */
   const handleOptionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSubjectID(Number(event.target.value));
+    setSelectedSubjectID(event.target.value);
   }
 
   const handleSubmit = () => {

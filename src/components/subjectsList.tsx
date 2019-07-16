@@ -24,17 +24,17 @@ import { toast } from 'react-toastify';
 interface SubjectsListInterface {
   subjects: StateSubjectDataInterface[],
   removeSubject: RemoveSubjectType,
-  handleEditSubClick: (id: number) => void,
+  handleEditSubClick: (id: string) => void,
   editSubState: EditSubStateType
 }
 interface SubjectRemoveButtonInterface {
-  sub_id: number,
+  sub_id: string,
   removeSubButtonClick: any,
   editSubState: EditSubStateType
 }
 interface removeSubPromptStateInterface {
   isOpen: boolean,
-  sub_id: number
+  sub_id: string
 }
 interface RemoveSubjectPopupInterface {
   removeSubPromptState: removeSubPromptStateInterface,
@@ -89,10 +89,10 @@ const SubjectsList = ({ subjects, removeSubject, handleEditSubClick, editSubStat
   /* Prompt state management */
   let [removeSubPromptState, setRemoveSubPromptState] = useState({
     isOpen: false,
-    sub_id: 0
+    sub_id: "0"
   });
 
-  const handleRemoveSubButtonClick = (sub_id: number) => {
+  const handleRemoveSubButtonClick = (sub_id: string) => {
     setRemoveSubPromptState({
       isOpen: true,
       sub_id: sub_id

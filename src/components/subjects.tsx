@@ -8,10 +8,10 @@ const SubjectsPage = () => {
   let defaultEditSubState = {
     edit_mode_on: false,
     editing_started: false,
-    sub_id: 0
+    sub_id: "0"
   }
   let [editSubState, setEditSubState] = useState(defaultEditSubState);
-  const handleEditSubClick = (id: number) => {
+  const handleEditSubClick = (id: string) => {
     setEditSubState({
       edit_mode_on: true,
       editing_started: false,
