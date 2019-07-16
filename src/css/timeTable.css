@@ -5,3 +5,9 @@
 .periodCell:hover {
   background-color: beige;
 }
+
+@media screen and (min-width: 550px) {
+  .dayName {
+    width: 60px;
+  }
+}

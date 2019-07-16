@@ -43,12 +43,12 @@ interface TableCellClickPromptProps {
 }
 
 const week_days = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday"
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat"
 ];
 
 const max_periods = 9;
@@ -206,11 +206,33 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod }: TimeTableProp
     });
   }
 
+  /* Create table headers */
+  const table_header = [<th key="th0">#</th>];
+  for (let i = 1; i <= max_periods; i++) {
+    table_header.push(<td key={"th"+i}>{i}</td>);
+  }
+
   for (let day_index_str in week_days) {
     let day_index = parseInt(day_index_str);
     const day = week_days[day_index];
     /* Create schedule for day */
     let schedule_for_day = [];
+    /* Add row header */
+    let day_header = day;
+    /* Use only first letter if screen size is smaller than 550px */
+    if (window.innerWidth < 550) {
+      day_header = day[0];
+    }
+    schedule_for_day.push(
+      <th
+        scope="row"
+        className="dayName"
+        key={day}
+      >
+        {day_header}
+      </th>
+    );
+    /* Fill table with data */
     for (let i = 0; i < max_periods; i++) {
       /* Check if period info filled by user */
       const period_info = periods[day_index][i];
@@ -242,7 +264,8 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod }: TimeTableProp
       removePeriod={removePeriod}
     />
 
-    <Table bordered responsive className="text-center">
+    <Table bordered striped responsive className="text-center">
+      <thead><tr>{table_header}</tr></thead>
       <tbody>
         {schedule}
       </tbody>
