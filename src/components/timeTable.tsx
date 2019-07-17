@@ -165,8 +165,9 @@ const TableCellClickPrompt = ({ addSubPromptState, toggleAddSubjectPrompt, subje
 }
 
 const TimeTableCell = ({ day_index, period_no, period_info, subjects, handleTableCellClick }: TimeTableCellProps) => {
-  let subject_name = '+';
+  let subject_name = '';
   let is_filled = false;
+  const placeholder = <img alt="Add subject" src="/images/plus_green.png" width="15" />;
 
   if (period_info && (Object.entries(period_info).length > 0)) {
     const sub_id = period_info.sub_id;
@@ -181,7 +182,7 @@ const TimeTableCell = ({ day_index, period_no, period_info, subjects, handleTabl
     <td
       className="periodCell"
       onClick={() => handleTableCellClick(day_index, period_no, is_filled)}
-    >{subject_name}</td>
+    >{subject_name ? subject_name : placeholder}</td>
   );
 }
 

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 
 import SubjectsForm from './subjectsForm';
 import SubjectsList from './subjectsList';
+import { Button } from 'reactstrap';
+import { Link } from 'react-router-dom';
 
 const SubjectsPage = () => {
   /* Subject editing state management */
@@ -36,7 +38,8 @@ const SubjectsPage = () => {
         editSubState={editSubState}
         setEditingStarted={setEditingStarted}
         setEditingDone={setEditingDone}
-      /><br /><br />
+      /><br />
+      <Button tag={Link} to="/">Back to Time Table</Button><br /><br />
       <SubjectsList
         editSubState={editSubState}
         handleEditSubClick={handleEditSubClick}
