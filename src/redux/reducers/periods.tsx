@@ -1,6 +1,8 @@
 import {
   ADD_PERIOD,
-  REMOVE_PERIOD } from "../actionTypes";
+  REMOVE_PERIOD,
+  CLEAR_PERIODS
+} from "../actionTypes";
 import {
   PeriodsActionsInterface
 } from '../../types/reducers';
@@ -33,6 +35,9 @@ const periods = (state: StatePeriodsDataInterface = initialState, action: Period
           }
         }
       });
+
+    case CLEAR_PERIODS:
+      return [...initialState];
 
     default:
       return state;

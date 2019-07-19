@@ -1,7 +1,8 @@
 import {
   ADD_SUBJECT,
   REMOVE_SUBJECT,
-  UPDATE_SUBJECT
+  UPDATE_SUBJECT,
+  CLEAR_SUBJECTS
 } from '../actionTypes';
 import {
   SubjectActionInterface} from '../../types/reducers';
@@ -57,6 +58,9 @@ const subjects = (state: StateSubjectDataInterface[] = [], action: SubjectAction
 
     case UPDATE_SUBJECT:
       return updateStateSubject(state, action);
+
+    case CLEAR_SUBJECTS:
+        return [];
 
     default:
       return state;

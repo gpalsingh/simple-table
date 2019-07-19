@@ -3,7 +3,9 @@ import {
   REMOVE_SUBJECT,
   ADD_PERIOD,
   REMOVE_PERIOD,
-  UPDATE_SUBJECT} from "./actionTypes";
+  UPDATE_SUBJECT,
+  CLEAR_SUBJECTS,
+  CLEAR_PERIODS} from "./actionTypes";
 
 import {
   SubjectDataInterface,
@@ -39,6 +41,10 @@ export const updateSubject = (sub_id: string, subjectData: SubjectDataInterface)
   }
 });
 
+export const clearSubjects = () => ({
+  type: CLEAR_SUBJECTS,
+});
+
 export const addPeriod = (subjectID: string, periodInfo: PeriodInfoInterface): PeriodsActionsInterface => ({
   /*
   {
@@ -64,4 +70,8 @@ export const removePeriod = (periodInfo: PeriodInfoInterface): PeriodsActionsInt
   payload: {
     periodInfo,
   }
+});
+
+export const clearPeriods = () => ({
+  type: CLEAR_PERIODS,
 });

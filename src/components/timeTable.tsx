@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from "react-router-dom";
+import { toast } from 'react-toastify';
 
-import { addPeriod, removePeriod } from '../redux/actions';
+import { addPeriod, removePeriod, clearPeriods } from '../redux/actions';
 import { getSubjectById, getSubjectNamesAndIds } from '../utils/redux';
 import {
   StateSubjectDataInterface,
   StatePeriodsDataInterface,
   StoreStateInterface
 } from '../types/store';
-import { PeriodsCellInterface } from '../types/reducers';
+import { PeriodsCellInterface, ClearPeriodsType } from '../types/reducers';
 import { Table, Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
 import '../css/timeTable.css';
 
@@ -18,6 +19,7 @@ interface TimeTableProps {
   subjects: StateSubjectDataInterface[],
   addPeriod: typeof addPeriod,
   removePeriod: typeof removePeriod
+  clearPeriods: ClearPeriodsType
 }
 
 interface TimeTableCellProps {
@@ -186,7 +188,44 @@ const TimeTableCell = ({ day_index, period_no, period_info, subjects, handleTabl
   );
 }
 
-const TimeTable = ({ periods, subjects, addPeriod, removePeriod }: TimeTableProps) => {
+const ClearTableButton = ({clearPeriods}: {clearPeriods: ClearPeriodsType}) => {
+  const [isPromptOpen, setPromptOpen] = useState(false);
+  const togglePrompt = () => { setPromptOpen(!isPromptOpen); };
+  const confirmClearPeriods = (event: React.MouseEvent<HTMLElement>) => {
+    clearPeriods();
+    togglePrompt();
+    toast.success("Cleared table data");
+  }
+
+  return (
+    <div>
+      <Button onClick={togglePrompt} color="danger" className="float-right">
+        Clear Table
+      </Button>
+      <Modal
+        isOpen={isPromptOpen}
+        toggle={togglePrompt}
+      >
+        <ModalHeader toggle={togglePrompt}>
+          Confirm action
+        </ModalHeader>
+        <ModalBody>
+          Proceed with clearing table? This action <b>CANNOT</b> be reversed.
+        </ModalBody>
+        <ModalFooter>
+          <Button type="submit" color="danger" onClick={confirmClearPeriods}>
+            Yes, clear
+          </Button>
+          <Button onClick={togglePrompt} color="secondary">
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </div>
+  );
+}
+
+const TimeTable = ({ periods, subjects, addPeriod, removePeriod, clearPeriods }: TimeTableProps) => {
   let schedule = [];
   let [addSubPromptState, setAddSubPromptState] = useState({
     isOpen: false,
@@ -271,6 +310,7 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod }: TimeTableProp
         {schedule}
       </tbody>
     </Table>
+    <ClearTableButton clearPeriods={clearPeriods} />
     </div>
   );
 };
@@ -280,4 +320,4 @@ const mapStateToProps = (state: StoreStateInterface) => {
   return { periods, subjects };
 }
 
-export default connect(mapStateToProps, { addPeriod, removePeriod })(TimeTable);
+export default connect(mapStateToProps, { addPeriod, removePeriod, clearPeriods })(TimeTable);

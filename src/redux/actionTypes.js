@@ -3,3 +3,5 @@ export const REMOVE_SUBJECT = "REMOVE_SUBJECT";
 export const UPDATE_SUBJECT = "UPDATE_SUBJECT";
 export const ADD_PERIOD = "ADD_PERIOD";
 export const REMOVE_PERIOD = "REMOVE_PERIOD";
+export const CLEAR_SUBJECTS = "CLEAR_SUBJECTS";
+export const CLEAR_PERIODS = "CLEAR_PERIODS";

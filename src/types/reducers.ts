@@ -31,4 +31,6 @@ export type AddSubjectType = (subjectData: SubjectDataInterface) => SubjectActio
 export type RemoveSubjectType = (subjectID: string) => SubjectActionInterface;
 export type UpdateSubjectType = (sub_id: string, subjectData: SubjectDataInterface) => SubjectActionInterface ;
 export type AddPeriodType = (subjectID: number, periodInfo: PeriodInfoInterface) => PeriodsActionsInterface;
+export type ClearPeriodsType = () => { type: string }
+export type ClearSubjectsType = () => { type: string }
 //export type RemovePeriodType = (periodInfo: PeriodInfoInterface) => PeriodsActionsInterface;

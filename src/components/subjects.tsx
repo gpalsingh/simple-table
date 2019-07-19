@@ -2,10 +2,61 @@ import React, { useState } from 'react';
 
 import SubjectsForm from './subjectsForm';
 import SubjectsList from './subjectsList';
-import { Button } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { clearSubjects } from '../redux/actions';
+import { ClearSubjectsType } from '../types/reducers';
+import { toast } from 'react-toastify';
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter
+} from 'reactstrap';
 
-const SubjectsPage = () => {
+type SubjectsPageType = {
+  clearSubjects: ClearSubjectsType,
+}
+
+const ClearSubjectsButton = ({clearSubjects}: {clearSubjects: ClearSubjectsType}) => {
+  const [isPromptOpen, setPromptOpen] = useState(false);
+  const togglePrompt = () => { setPromptOpen(!isPromptOpen); };
+  const confirmClearSubjects = (event: React.MouseEvent<HTMLElement>) => {
+    clearSubjects();
+    togglePrompt();
+    toast.success("Removed all subjects");
+  }
+
+  return (
+    <div className="mt-2 mt-sm-0">
+      <Button onClick={togglePrompt} color="danger">
+        Remove all subjects
+      </Button>
+      <Modal
+        isOpen={isPromptOpen}
+        toggle={togglePrompt}
+      >
+        <ModalHeader toggle={togglePrompt}>
+          Confirm action
+        </ModalHeader>
+        <ModalBody>
+          Proceed with removing all subjects? This action <b>CANNOT</b> be reversed.
+        </ModalBody>
+        <ModalFooter>
+          <Button type="submit" color="danger" onClick={confirmClearSubjects}>
+            Yes, remove
+          </Button>
+          <Button onClick={togglePrompt} color="secondary">
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </div>
+  );
+}
+
+const SubjectsPage = ({ clearSubjects }: SubjectsPageType) => {
   /* Subject editing state management */
   let defaultEditSubState = {
     edit_mode_on: false,
@@ -39,7 +90,11 @@ const SubjectsPage = () => {
         setEditingStarted={setEditingStarted}
         setEditingDone={setEditingDone}
       /><br />
-      <Button tag={Link} to="/">Back to Time Table</Button><br /><br />
+      <div className="d-sm-flex">
+        <Button tag={Link} to="/" className="mr-auto">Back to Time Table</Button>
+        <ClearSubjectsButton clearSubjects={clearSubjects}/>
+      </div>
+      <hr />
       <SubjectsList
         editSubState={editSubState}
         handleEditSubClick={handleEditSubClick}
@@ -48,4 +103,4 @@ const SubjectsPage = () => {
   );
 };
 
-export default SubjectsPage;
+export default connect(null, { clearSubjects })(SubjectsPage);
