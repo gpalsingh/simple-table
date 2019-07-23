@@ -5,7 +5,10 @@ import {
   REMOVE_PERIOD,
   UPDATE_SUBJECT,
   CLEAR_SUBJECTS,
-  CLEAR_PERIODS} from "./actionTypes";
+  CLEAR_PERIODS,
+  MARK_SW_NOT_WAITING,
+  MARK_SW_WAITING
+} from "./actionTypes";
 
 import {
   SubjectDataInterface,
@@ -74,4 +77,14 @@ export const removePeriod = (periodInfo: PeriodInfoInterface): PeriodsActionsInt
 
 export const clearPeriods = () => ({
   type: CLEAR_PERIODS,
+});
+
+/* Service worker actions */
+
+export const markSwNotWaiting = () => ({
+  type: MARK_SW_NOT_WAITING
+});
+
+export const markSwWaiting = () => ({
+  type: MARK_SW_WAITING
 });

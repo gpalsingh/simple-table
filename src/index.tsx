@@ -7,6 +7,7 @@ import { persistStore } from 'redux-persist';
 
 import App from './components/App';
 import store from './redux/store';
+import swconfig from './swconfig';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/index.css';
@@ -21,4 +22,4 @@ render(
   document.getElementById('root')
 );
 
-serviceWorker.register();
+serviceWorker.register(swconfig(store.dispatch));

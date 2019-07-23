@@ -11,8 +11,10 @@ if (process.env.NODE_ENV === "development") {
 }
 
 const persistConfig = {
-  key: 'root',
+  key: 'simpleTable',
+  version: 1,
   storage,
+  blacklist: ['sw'],
 }
 
 const persistedReducer = persistReducer(persistConfig, reducers)

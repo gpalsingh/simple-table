@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import SubjectsPage from './subjects';
 import TimeTable from './timeTable';
-import { AppNavBar } from './navbar';
+import AppNavBar from './navbar';
 
 toast.configure();
 

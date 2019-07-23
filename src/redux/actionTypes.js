@@ -5,3 +5,5 @@ export const ADD_PERIOD = "ADD_PERIOD";
 export const REMOVE_PERIOD = "REMOVE_PERIOD";
 export const CLEAR_SUBJECTS = "CLEAR_SUBJECTS";
 export const CLEAR_PERIODS = "CLEAR_PERIODS";
+export const MARK_SW_WAITING = "MARK_SW_WAITING";
+export const MARK_SW_NOT_WAITING = "MARK_SW_NOT_WAITING";

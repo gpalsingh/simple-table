@@ -9,7 +9,12 @@ export interface StateSubjectDataInterface {
 
 export type StatePeriodsDataInterface = PeriodsCellInterface[][];
 
+export type StateSwType = {
+  status: "waiting" | "none",
+}
+
 export interface StoreStateInterface {
   subjects: StateSubjectDataInterface[],
-  periods: StatePeriodsDataInterface
+  periods: StatePeriodsDataInterface,
+  sw: StateSwType
 }
