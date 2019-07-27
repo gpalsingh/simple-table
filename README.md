@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/images/icons/icon-192.png" width="100px" />
+  <img src="docs/images/icon.png" width="100px" />
 </p>
 
 # Simple Table
@@ -9,7 +9,7 @@ Offline-first Progressive Web App(PWA) to manage your school timetable.
 Check out the [live demo](https://simpletable.netlify.com/)
 
 <p align="center">
-  <img src="docs/demo.gif" />
+  <img src="docs/images/demo.gif" />
 </p>
 
 # Misc
