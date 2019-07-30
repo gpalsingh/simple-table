@@ -52,6 +52,7 @@ const SubjectRemoveButton = ({ sub_id, removeSubButtonClick, editSubState }: Sub
       color="danger"
       onClick={handleClick}
       disabled={editSubState.edit_mode_on}
+      className="mr-2 mb-2 mb-md-0"
     >
       Remove
     </Button>

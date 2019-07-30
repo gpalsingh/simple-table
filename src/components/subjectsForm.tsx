@@ -237,7 +237,7 @@ const SubjectsForm = ({ subjects, addSubject, updateSubject, editSubState, setEd
             Error with teacher name
           </FormFeedback>) : (null)}
       </FormGroup>
-      <Button color="primary" type="submit">{submit_button_text}</Button>
+      <Button color="primary" type="submit" className="mr-2">{submit_button_text}</Button>
       {editSubState.edit_mode_on && cancel_button}
     </Form>
   );
