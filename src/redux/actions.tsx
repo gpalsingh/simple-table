@@ -7,7 +7,8 @@ import {
   CLEAR_SUBJECTS,
   CLEAR_PERIODS,
   MARK_SW_NOT_WAITING,
-  MARK_SW_WAITING
+  MARK_SW_WAITING,
+  FLIP_TIME_TABLE
 } from "./actionTypes";
 
 import {
@@ -16,7 +17,8 @@ import {
 } from '../types/actions';
 import {
   PeriodsActionsInterface,
-  SubjectActionInterface
+  SubjectActionInterface,
+  FlipTimetableType
 } from '../types/reducers';
 
 import uuidv1 from 'uuid/v1';
@@ -87,4 +89,10 @@ export const markSwNotWaiting = () => ({
 
 export const markSwWaiting = () => ({
   type: MARK_SW_WAITING
+});
+
+/* Settings actions */
+
+export const flipTimeTable: FlipTimetableType = () => ({
+  type: FLIP_TIME_TABLE
 });

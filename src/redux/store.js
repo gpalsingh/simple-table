@@ -1,4 +1,4 @@
-import { persistReducer } from 'redux-persist';
+import { persistReducer, createMigrate } from 'redux-persist';
 import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
 import { createStore } from 'redux';
 import storage from 'redux-persist/lib/storage';
@@ -10,11 +10,23 @@ if (process.env.NODE_ENV === "development") {
   redux_enhancer = composeWithDevTools();
 }
 
+const migrations = {
+  2: (state) => {
+    return {
+      ...state,
+      settings: {
+        timetable_flipped: false
+      }
+    }
+  }
+}
+
 const persistConfig = {
   key: 'simpleTable',
-  version: 1,
+  version: 2,
   storage,
   blacklist: ['sw'],
+  migrate: createMigrate(migrations, { debug: false })
 }
 
 const persistedReducer = persistReducer(persistConfig, reducers)

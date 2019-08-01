@@ -13,8 +13,13 @@ export type StateSwType = {
   status: "waiting" | "none",
 }
 
+export type StateSettingsType = {
+  timetable_flipped: boolean
+}
+
 export interface StoreStateInterface {
   subjects: StateSubjectDataInterface[],
   periods: StatePeriodsDataInterface,
-  sw: StateSwType
+  sw: StateSwType,
+  settings: StateSettingsType
 }

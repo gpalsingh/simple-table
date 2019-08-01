@@ -3,24 +3,28 @@ import { connect } from 'react-redux';
 import { Redirect } from "react-router-dom";
 import { toast } from 'react-toastify';
 
-import { addPeriod, removePeriod, clearPeriods } from '../redux/actions';
+import { addPeriod, removePeriod, clearPeriods, flipTimeTable } from '../redux/actions';
 import { getSubjectById, getSubjectNamesAndIds } from '../utils/redux';
 import {
   StateSubjectDataInterface,
   StatePeriodsDataInterface,
-  StoreStateInterface
+  StoreStateInterface,
+  StateSettingsType
 } from '../types/store';
-import { PeriodsCellInterface, ClearPeriodsType } from '../types/reducers';
+import { PeriodsCellInterface, ClearPeriodsType, FlipTimetableType } from '../types/reducers';
 import { Table, Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
 import '../css/timeTable.css';
 import PLUS_GREEN from "../images/plus_green.png";
+import { addTableCell, wrapRowsInTr, createTable } from '../utils/timeTable';
 
 interface TimeTableProps {
   periods: StatePeriodsDataInterface,
   subjects: StateSubjectDataInterface[],
+  settings: StateSettingsType,
   addPeriod: typeof addPeriod,
-  removePeriod: typeof removePeriod
-  clearPeriods: ClearPeriodsType
+  removePeriod: typeof removePeriod,
+  clearPeriods: ClearPeriodsType,
+  flipTimeTable: FlipTimetableType
 }
 
 interface TimeTableCellProps {
@@ -226,14 +230,25 @@ const ClearTableButton = ({clearPeriods}: {clearPeriods: ClearPeriodsType}) => {
   );
 }
 
-const TimeTable = ({ periods, subjects, addPeriod, removePeriod, clearPeriods }: TimeTableProps) => {
-  let schedule = [];
+const FlipTablebutton = ({flipTimeTable}: {flipTimeTable: FlipTimetableType}) => {
+  return (
+    <Button
+      className="mr-3"
+      onClick={flipTimeTable}
+    >
+      Flip Table
+    </Button>
+  );
+}
+
+const TimeTable = ({ periods, subjects, settings, addPeriod, removePeriod, clearPeriods, flipTimeTable }: TimeTableProps) => {
+  let schedule;
   let [addSubPromptState, setAddSubPromptState] = useState({
     isOpen: false,
     showResetButton: false,
     currentCell: [1, 1]
   });
-  const handleTableCellClick = (day_index: number, period_no:number, is_filled: boolean) => {
+  const handleTableCellClick = (day_index: number, period_no: number, is_filled: boolean) => {
     setAddSubPromptState({
       isOpen: true,
       showResetButton: is_filled,
@@ -247,53 +262,94 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod, clearPeriods }:
     });
   }
 
+  /* Table orientation. Horizontal table by default */
+  let flipped = settings.timetable_flipped;
+  /* Flip table by default on smaller screens */
+  if (window.innerWidth < 580) {
+    flipped = !flipped;
+  }
+  /* Create 2D matrix to store data based on orientation */
+  if (flipped) {
+    /* 1 extra row for headers */
+    schedule = createTable(max_periods + 1, 7);
+  } else {
+    /* 6 rows for weekdays + 1 row for headers */
+    schedule = createTable(7, max_periods + 1);
+  }
+
   /* Create table headers */
   const table_header = [<th key="th0">#</th>];
+  addTableCell({
+    table: schedule,
+    x: 0,
+    y: 0,
+    data: table_header,
+    flipped
+  });
   for (let i = 1; i <= max_periods; i++) {
-    table_header.push(<td key={"th"+i}>{i}</td>);
+    addTableCell({
+      table: schedule,
+      x: 0,
+      y: i,
+      data: <td
+        key={"th"+i}
+        className={flipped ? "rowHeader" : ''}>
+          {i}
+      </td>,
+      flipped
+    });
   }
 
   for (let day_index_str in week_days) {
     let day_index = parseInt(day_index_str);
     const day = week_days[day_index];
-    /* Create schedule for day */
-    let schedule_for_day = [];
     /* Add row header */
     let day_header = day;
     /* Use only first letter if screen size is smaller than 550px */
     if (window.innerWidth < 550) {
       day_header = day[0];
     }
-    schedule_for_day.push(
-      <th
+    const day_header_th = <th
         scope="row"
-        className="dayName"
-        key={day}
+        className={flipped? '' : "rowHeader"}
+        key={day + day_index_str}
       >
         {day_header}
-      </th>
-    );
+      </th>;
+    addTableCell({
+      table: schedule,
+      x: day_index + 1,
+      y: 0,
+      data: day_header_th,
+      flipped
+    });
     /* Fill table with data */
     for (let i = 0; i < max_periods; i++) {
       /* Check if period info filled by user */
       const period_info = periods[day_index][i];
 
-      schedule_for_day.push(
+      const subject_cell = (
         <TimeTableCell
           day_index={day_index}
           period_no={i}
           period_info={period_info}
           subjects={subjects}
-          key={i}
+          key={i.toString() + day_index_str + day}
           handleTableCellClick={handleTableCellClick}
         />
       );
+      addTableCell({
+        table: schedule,
+        x: day_index + 1,
+        y: i + 1,
+        data: subject_cell,
+        flipped
+      });
     }
-    /* Add to main schedule */
-    schedule.push(
-      <tr key={day}>{schedule_for_day}</tr>
-    );
   }
+
+  /* Wrap table rows inside tr */
+  wrapRowsInTr(schedule);
 
   return (
     <div>
@@ -305,20 +361,31 @@ const TimeTable = ({ periods, subjects, addPeriod, removePeriod, clearPeriods }:
       removePeriod={removePeriod}
     />
 
+    <div className="d-flex justify-content-end mb-3">
+      <FlipTablebutton flipTimeTable={flipTimeTable} />
+      <ClearTableButton clearPeriods={clearPeriods} />
+    </div>
+
     <Table bordered striped responsive className="text-center">
-      <thead><tr>{table_header}</tr></thead>
+      <thead>{schedule[0]}</thead>
       <tbody>
-        {schedule}
+        {schedule.slice(1)}
       </tbody>
     </Table>
-    <ClearTableButton clearPeriods={clearPeriods} />
     </div>
   );
 };
 
 const mapStateToProps = (state: StoreStateInterface) => {
-  const { periods, subjects } = state;
-  return { periods, subjects };
+  const { periods, subjects, settings } = state;
+  return { periods, subjects, settings };
 }
 
-export default connect(mapStateToProps, { addPeriod, removePeriod, clearPeriods })(TimeTable);
+const mapDispatchToProps = {
+  addPeriod,
+  removePeriod,
+  clearPeriods,
+  flipTimeTable
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(TimeTable);

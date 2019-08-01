@@ -7,7 +7,7 @@
 }
 
 @media screen and (min-width: 550px) {
-  .dayName {
+  .rowHeader {
     width: 60px;
   }
 }
