@@ -14,7 +14,7 @@ import {
 import { PeriodsCellInterface, ClearPeriodsType, FlipTimetableType } from '../types/reducers';
 import { Table, Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
 import '../css/timeTable.css';
-import PLUS_GREEN from "../images/plus_green.png";
+import PLUS_GREEN from "../images/plus_green.svg";
 import { addTableCell, wrapRowsInTr, createTable } from '../utils/timeTable';
 
 interface TimeTableProps {
@@ -174,7 +174,7 @@ const TableCellClickPrompt = ({ addSubPromptState, toggleAddSubjectPrompt, subje
 const TimeTableCell = ({ day_index, period_no, period_info, subjects, handleTableCellClick }: TimeTableCellProps) => {
   let subject_name = '';
   let is_filled = false;
-  const placeholder = <img alt="Add subject" src={PLUS_GREEN} width="15" />;
+  const placeholder = <img alt="Add subject" src={PLUS_GREEN} width="18" />;
 
   if (period_info && (Object.entries(period_info).length > 0)) {
     const sub_id = period_info.sub_id;
