@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Redirect, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from 'react-toastify';
 
 import { addPeriod, removePeriod, clearPeriods, flipTimeTable } from '../redux/actions';
@@ -61,20 +61,6 @@ const week_days = [
 const max_periods = 9;
 
 const NoSubjectsFound = ({ addSubPromptState, toggleAddSubjectPrompt }: any) => {
-  /*
-  <Link to="/manageSubjects/" style={{ textDecoration: 'none', color: "white" }}>
-            Add Subjects
-          </Link>*/
-  let [isRedirected, setIsRedirected] = useState(false);
-  const toggleIsRedirected = () => {
-    setIsRedirected(!isRedirected);
-  }
-
-  if (isRedirected) {
-    return(
-      <Redirect to="/manageSubjects/" />
-    );
-  }
   return (
     <Modal
       isOpen={addSubPromptState.isOpen}
@@ -87,7 +73,7 @@ const NoSubjectsFound = ({ addSubPromptState, toggleAddSubjectPrompt }: any) => 
         You need to add some subjects before entering them into the table.
       </ModalBody>
       <ModalFooter>
-        <Button color="primary" onClick={toggleIsRedirected}>
+        <Button color="primary" tag={Link} to="/manageSubjects">
           Add Subjects
         </Button>
         <Button color="secondary" onClick={toggleAddSubjectPrompt}>Later</Button>
