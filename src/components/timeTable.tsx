@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from "react-router-dom";
+import { Redirect, Link } from "react-router-dom";
 import { toast } from 'react-toastify';
 
 import { addPeriod, removePeriod, clearPeriods, flipTimeTable } from '../redux/actions';
@@ -233,7 +233,7 @@ const ClearTableButton = ({clearPeriods}: {clearPeriods: ClearPeriodsType}) => {
 const FlipTablebutton = ({flipTimeTable}: {flipTimeTable: FlipTimetableType}) => {
   return (
     <Button
-      className="mr-3"
+      className="mr-2"
       onClick={flipTimeTable}
     >
       Flip Table
@@ -351,6 +351,14 @@ const TimeTable = ({ periods, subjects, settings, addPeriod, removePeriod, clear
   /* Wrap table rows inside tr */
   wrapRowsInTr(schedule);
 
+  /* Show easy navigation button for mobile users */
+  let editSubjectsButton: any;
+  if (window.innerWidth < 770) {
+    editSubjectsButton = <Button tag={Link} to="/manageSubjects" className="mr-2 mr-sm-auto">
+      Edit Subjects
+    </Button>
+  }
+
   return (
     <div>
     <TableCellClickPrompt
@@ -362,6 +370,7 @@ const TimeTable = ({ periods, subjects, settings, addPeriod, removePeriod, clear
     />
 
     <div className="d-flex justify-content-end mb-3">
+      {editSubjectsButton}
       <FlipTablebutton flipTimeTable={flipTimeTable} />
       <ClearTableButton clearPeriods={clearPeriods} />
     </div>
