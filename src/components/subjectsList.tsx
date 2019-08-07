@@ -183,7 +183,14 @@ const SubjectsList = ({ subjects, removeSubject, handleEditSubClick, editSubStat
 };
 
 const mapStateToProps = (state: StoreStateInterface) => {
-  const { subjects } = state;
+  const { subjects: subjects_orig } = state;
+  /* Sort subjects by name before displaying them */
+  const subCompareFunc = (firstSub: StateSubjectDataInterface, secondSub: StateSubjectDataInterface) => {
+    const isGreater = firstSub.name.toLowerCase() > secondSub.name.toLowerCase();
+    if (isGreater) return 1;
+    return -1;
+  };
+  const subjects = [...subjects_orig].sort(subCompareFunc);
 
   return { subjects }
 }
