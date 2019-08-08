@@ -17,9 +17,15 @@ export type StateSettingsType = {
   timetable_flipped: boolean
 }
 
+export type EditingSubStateType = {
+  mode_on: boolean,
+  sub_id: string
+};
+
 export interface StoreStateInterface {
   subjects: StateSubjectDataInterface[],
   periods: StatePeriodsDataInterface,
   sw: StateSwType,
-  settings: StateSettingsType
+  settings: StateSettingsType,
+  editingSubject: EditingSubStateType,
 }

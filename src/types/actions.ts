@@ -8,3 +8,10 @@ export interface PeriodInfoInterface {
   day: number,
   periodNo: number
 }
+
+export type EditingSubActionType = {
+  type: string,
+  payload?: {
+    sub_id: string
+  }
+}

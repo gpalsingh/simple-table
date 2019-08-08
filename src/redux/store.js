@@ -25,7 +25,7 @@ const persistConfig = {
   key: 'simpleTable',
   version: 2,
   storage,
-  blacklist: ['sw'],
+  blacklist: ['sw', 'editingSubject'],
   migrate: createMigrate(migrations, { debug: false })
 }
 
