@@ -3,7 +3,13 @@ import { connect } from 'react-redux';
 import { Link } from "react-router-dom";
 import { toast } from 'react-toastify';
 
-import { addPeriod, removePeriod, clearPeriods, flipTimeTable } from '../redux/actions';
+import {
+  addPeriod,
+  removePeriod,
+  clearPeriods,
+  flipTimeTable,
+  setEditingSubject
+} from '../redux/actions';
 import { getSubjectById, getSubjectNamesAndIds } from '../utils/redux';
 import {
   StateSubjectDataInterface,
@@ -16,6 +22,7 @@ import { Table, Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'react
 import '../css/timeTable.css';
 import PLUS_GREEN from "../images/plus_green.svg";
 import { addTableCell, wrapRowsInTr, createTable } from '../utils/timeTable';
+import { EditingSubActionType } from '../types/actions';
 
 interface TimeTableProps {
   periods: StatePeriodsDataInterface,
@@ -24,7 +31,8 @@ interface TimeTableProps {
   addPeriod: typeof addPeriod,
   removePeriod: typeof removePeriod,
   clearPeriods: ClearPeriodsType,
-  flipTimeTable: FlipTimetableType
+  flipTimeTable: FlipTimetableType,
+  setEditingSubject: (sub_id: string) => EditingSubActionType,
 }
 
 interface TimeTableCellProps {
@@ -37,7 +45,7 @@ interface TimeTableCellProps {
 
 interface SubPromptStateInterface {
   isOpen: boolean,
-  showResetButton: boolean,
+  is_filled: boolean,
   currentCell: Array<number>
 }
 
@@ -46,7 +54,8 @@ interface TableCellClickPromptProps {
   toggleAddSubjectPrompt:any,
   subjects: StateSubjectDataInterface[],
   addPeriod: typeof addPeriod,
-  removePeriod: typeof removePeriod
+  removePeriod: typeof removePeriod,
+  setEditingSubject: (sub_id: string) => EditingSubActionType,
 }
 
 const week_days = [
@@ -82,7 +91,14 @@ const NoSubjectsFound = ({ addSubPromptState, toggleAddSubjectPrompt }: any) => 
   );
 };
 
-const TableCellClickPrompt = ({ addSubPromptState, toggleAddSubjectPrompt, subjects, addPeriod, removePeriod }: TableCellClickPromptProps) => {
+const TableCellClickPrompt = ({
+  addSubPromptState,
+  toggleAddSubjectPrompt,
+  subjects,
+  addPeriod,
+  removePeriod,
+  setEditingSubject,
+  }: TableCellClickPromptProps) => {
   /* Set initial state as the id or -1 if no subjects available
      useState must come before all conditional returns */
   let [selectedSubjectID, setSelectedSubjectID] = useState(subjects[0] ? subjects[0]["id"] : "-1");
@@ -119,17 +135,29 @@ const TableCellClickPrompt = ({ addSubPromptState, toggleAddSubjectPrompt, subje
     );
   }
 
-  /* Show reset button too if cell already filled */
-  let resetButton: any;
-  const resetCell = () => {
+  /* Show clear and edit buttons too if cell already filled */
+  let clearButton: any;
+  let editCurrentSubButton: any;
+  const clearCell = () => {
     removePeriod({
       day: addSubPromptState.currentCell[0],
       periodNo: addSubPromptState.currentCell[1]
     });
     toggleAddSubjectPrompt();
   };
-  if (addSubPromptState.showResetButton === true) {
-    resetButton = <Button color="danger" onClick={resetCell}>Reset</Button>;
+  const handleEditCurrentSubClick = (event: React.MouseEvent<HTMLElement>) => {
+    setEditingSubject(selectedSubjectID)
+  }
+  if (addSubPromptState.is_filled === true) {
+    clearButton = <Button color="danger" onClick={clearCell}>Clear</Button>;
+    editCurrentSubButton = <Button
+      color="info"
+      tag={Link}
+      to="/manageSubjects"
+      onClick={handleEditCurrentSubClick}
+      >
+        Edit
+      </Button>;
   }
 
   return (
@@ -149,8 +177,9 @@ const TableCellClickPrompt = ({ addSubPromptState, toggleAddSubjectPrompt, subje
         </label>
       </ModalBody>
       <ModalFooter>
+        {clearButton}
+        {editCurrentSubButton}
         <Button color="primary" onClick={handleSubmit}>Set subject</Button>
-        {resetButton}
         <Button color="secondary" onClick={toggleAddSubjectPrompt}>Cancel</Button>
       </ModalFooter>
     </Modal>
@@ -227,17 +256,26 @@ const FlipTablebutton = ({flipTimeTable}: {flipTimeTable: FlipTimetableType}) =>
   );
 }
 
-const TimeTable = ({ periods, subjects, settings, addPeriod, removePeriod, clearPeriods, flipTimeTable }: TimeTableProps) => {
+const TimeTable = ({
+  periods,
+  subjects,
+  settings,
+  addPeriod,
+  removePeriod,
+  clearPeriods,
+  flipTimeTable,
+  setEditingSubject,
+  }: TimeTableProps) => {
   let schedule;
   let [addSubPromptState, setAddSubPromptState] = useState({
     isOpen: false,
-    showResetButton: false,
+    is_filled: false,
     currentCell: [1, 1]
   });
   const handleTableCellClick = (day_index: number, period_no: number, is_filled: boolean) => {
     setAddSubPromptState({
       isOpen: true,
-      showResetButton: is_filled,
+      is_filled,
       currentCell: [day_index, period_no]
     });
   }
@@ -353,6 +391,7 @@ const TimeTable = ({ periods, subjects, settings, addPeriod, removePeriod, clear
       subjects={subjects}
       addPeriod={addPeriod}
       removePeriod={removePeriod}
+      setEditingSubject={setEditingSubject}
     />
 
     <div className="d-flex justify-content-end mb-3">
@@ -380,7 +419,8 @@ const mapDispatchToProps = {
   addPeriod,
   removePeriod,
   clearPeriods,
-  flipTimeTable
+  flipTimeTable,
+  setEditingSubject,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TimeTable);
