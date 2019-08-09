@@ -10,7 +10,7 @@ import {
   flipTimeTable,
   setEditingSubject
 } from '../redux/actions';
-import { getSubjectById, getSubjectNamesAndIds } from '../utils/redux';
+import { getSubjectById, getSubjectNamesAndIds, sortSubjectsByName } from '../utils/redux';
 import {
   StateSubjectDataInterface,
   StatePeriodsDataInterface,
@@ -46,7 +46,8 @@ interface TimeTableCellProps {
 interface SubPromptStateInterface {
   isOpen: boolean,
   is_filled: boolean,
-  currentCell: Array<number>
+  currentCell: Array<number>,
+  sub_id: string
 }
 
 interface TableCellClickPromptProps {
@@ -56,6 +57,7 @@ interface TableCellClickPromptProps {
   addPeriod: typeof addPeriod,
   removePeriod: typeof removePeriod,
   setEditingSubject: (sub_id: string) => EditingSubActionType,
+  handleOptionChange: (event: React.ChangeEvent<HTMLSelectElement>) => void,
 }
 
 const week_days = [
@@ -98,12 +100,14 @@ const TableCellClickPrompt = ({
   addPeriod,
   removePeriod,
   setEditingSubject,
+  handleOptionChange,
   }: TableCellClickPromptProps) => {
   /* Set initial state as the id or -1 if no subjects available
      useState must come before all conditional returns */
-  let [selectedSubjectID, setSelectedSubjectID] = useState(subjects[0] ? subjects[0]["id"] : "-1");
+  let selectedSubjectID = addSubPromptState.sub_id || (subjects[0] ? subjects[0]["id"] : '');
+
   /* Prompt to add subjects if none available */
-  if (selectedSubjectID === "-1") {
+  if (!selectedSubjectID) {
     return (
       <NoSubjectsFound
       addSubPromptState={addSubPromptState}
@@ -113,10 +117,6 @@ const TableCellClickPrompt = ({
   }
 
   /* Callbacks */
-  const handleOptionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSubjectID(event.target.value);
-  }
-
   const handleSubmit = () => {
     addPeriod(selectedSubjectID, {
       day: addSubPromptState.currentCell[0],
@@ -127,12 +127,12 @@ const TableCellClickPrompt = ({
 
   /* Make subject options list */
   const subject_options: Array<JSX.Element> = [];
-  const id_to_sub_name = getSubjectNamesAndIds(subjects);
+  const id_and_sub_name = getSubjectNamesAndIds(subjects);
 
-  for (let [id, sub_name] of Object.entries(id_to_sub_name)) {
-    subject_options.push(
-      <option value={id} key={id}>{sub_name}</option>
-    );
+  for (let [id, sub_name] of id_and_sub_name) {
+    const ele = <option value={id} key={id}>{sub_name}</option>;
+    /* Put the already selected subject on top of the list */
+    subject_options.push(ele);
   }
 
   /* Show clear and edit buttons too if cell already filled */
@@ -146,7 +146,7 @@ const TableCellClickPrompt = ({
     toggleAddSubjectPrompt();
   };
   const handleEditCurrentSubClick = (event: React.MouseEvent<HTMLElement>) => {
-    setEditingSubject(selectedSubjectID)
+    setEditingSubject(selectedSubjectID);
   }
   if (addSubPromptState.is_filled === true) {
     clearButton = <Button color="danger" onClick={clearCell}>Clear</Button>;
@@ -171,7 +171,10 @@ const TableCellClickPrompt = ({
       <ModalBody>
         <label>
           Select subject:
-          <select value={selectedSubjectID} onChange={handleOptionChange}>
+          <select
+            value={selectedSubjectID}
+            onChange={handleOptionChange}
+          >
             {subject_options}
           </select>
         </label>
@@ -190,9 +193,10 @@ const TimeTableCell = ({ day_index, period_no, period_info, subjects, handleTabl
   let subject_name = '';
   let is_filled = false;
   const placeholder = <img alt="Add subject" src={PLUS_GREEN} width="18" />;
+  let sub_id = '';
 
-  if (period_info && (Object.entries(period_info).length > 0)) {
-    const sub_id = period_info.sub_id;
+  if (period_info && period_info.sub_id) {
+    sub_id = period_info.sub_id;
     const subject_info = getSubjectById(subjects, sub_id);
     if (subject_info) {
       subject_name = subject_info['short_name'];
@@ -203,7 +207,7 @@ const TimeTableCell = ({ day_index, period_no, period_info, subjects, handleTabl
   return (
     <td
       className="periodCell"
-      onClick={() => handleTableCellClick(day_index, period_no, is_filled)}
+      onClick={() => handleTableCellClick(day_index, period_no, sub_id, is_filled)}
     >{subject_name ? subject_name : placeholder}</td>
   );
 }
@@ -266,23 +270,31 @@ const TimeTable = ({
   flipTimeTable,
   setEditingSubject,
   }: TimeTableProps) => {
-  let schedule;
+  let schedule: Array<Array<any>>;
   let [addSubPromptState, setAddSubPromptState] = useState({
     isOpen: false,
     is_filled: false,
-    currentCell: [1, 1]
+    currentCell: [1, 1],
+    sub_id: ''
   });
-  const handleTableCellClick = (day_index: number, period_no: number, is_filled: boolean) => {
+  const handleTableCellClick = (day_index: number, period_no: number, sub_id: string, is_filled: boolean) => {
     setAddSubPromptState({
       isOpen: true,
       is_filled,
-      currentCell: [day_index, period_no]
+      currentCell: [day_index, period_no],
+      sub_id
     });
   }
   const toggleAddSubjectPrompt = () => {
     setAddSubPromptState({
       ...addSubPromptState,
       isOpen: (!addSubPromptState.isOpen),
+    });
+  }
+  const handleAddSubOptionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setAddSubPromptState({
+      ...addSubPromptState,
+      sub_id: event.target.value
     });
   }
 
@@ -392,6 +404,7 @@ const TimeTable = ({
       addPeriod={addPeriod}
       removePeriod={removePeriod}
       setEditingSubject={setEditingSubject}
+      handleOptionChange={handleAddSubOptionChange}
     />
 
     <div className="d-flex justify-content-end mb-3">
@@ -412,7 +425,11 @@ const TimeTable = ({
 
 const mapStateToProps = (state: StoreStateInterface) => {
   const { periods, subjects, settings } = state;
-  return { periods, subjects, settings };
+  return {
+    periods,
+    subjects: sortSubjectsByName(subjects),
+    settings
+  };
 }
 
 const mapDispatchToProps = {

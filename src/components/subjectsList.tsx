@@ -21,6 +21,7 @@ import {
 } from 'reactstrap';
 import { toast } from 'react-toastify';
 import { EditingSubActionType } from '../types/actions';
+import { sortSubjectsByName } from '../utils/redux';
 
 interface SubjectsListInterface {
   subjects: StateSubjectDataInterface[],
@@ -186,12 +187,7 @@ const SubjectsList = ({ subjects, removeSubject, setEditingSubject, editingSubje
 const mapStateToProps = (state: StoreStateInterface) => {
   const { subjects: subjects_orig, editingSubject } = state;
   /* Sort subjects by name before displaying them */
-  const subCompareFunc = (firstSub: StateSubjectDataInterface, secondSub: StateSubjectDataInterface) => {
-    const isGreater = firstSub.name.toLowerCase() > secondSub.name.toLowerCase();
-    if (isGreater) return 1;
-    return -1;
-  };
-  const subjects = [...subjects_orig].sort(subCompareFunc);
+  const subjects = sortSubjectsByName(subjects_orig);
 
   return { subjects, editingSubject }
 }
