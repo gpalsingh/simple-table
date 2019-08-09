@@ -1,16 +1,16 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
-import { addSubject, updateSubject } from '../redux/actions';
+import { addSubject, updateSubject, setEditingSubjectDone } from '../redux/actions';
 import { toast } from 'react-toastify';
 import {
   AddSubjectType,
   UpdateSubjectType
 } from '../types/reducers';
-import { EditSubStateType } from '../types/subjects';
 import { getSubjectById } from '../utils/redux';
 import {
   StoreStateInterface,
-  StateSubjectDataInterface
+  StateSubjectDataInterface,
+  EditingSubStateType
 } from '../types/store';
 import {
   Form,
@@ -20,14 +20,14 @@ import {
   Button,
   FormFeedback
 } from 'reactstrap';
+import { EditingSubActionType } from '../types/actions';
 
 interface SubjectsFormProps {
   subjects: StateSubjectDataInterface[],
   addSubject: AddSubjectType,
   updateSubject: UpdateSubjectType,
-  editSubState: EditSubStateType,
-  setEditingStarted: () => void,
-  setEditingDone: () => void
+  editingSubject: EditingSubStateType,
+  setEditingSubjectDone: () => EditingSubActionType
 }
 
 const createSubShortName = (sub_name: string): string => {
@@ -37,13 +37,14 @@ const createSubShortName = (sub_name: string): string => {
   return sub_name_no_space.substr(0, name_len).toUpperCase();
 }
 
-const SubjectsForm = ({ subjects, addSubject, updateSubject, editSubState, setEditingStarted, setEditingDone }: SubjectsFormProps) => {
+const SubjectsForm = ({ subjects, addSubject, updateSubject, editingSubject, setEditingSubjectDone }: SubjectsFormProps) => {
   const initial_state = {
     sub_name_value: '',
     sub_name_short_value: '',
     teacher_name_value: '',
     invalid_field_id: '',
-    user_changed_short_name: false
+    user_changed_short_name: false,
+    mode: "add" //Form editing mode
   };
   const SUBJECT_NAME_ID = "subjectName";
   const SUBJECT_SHORT_NAME_ID = "subjectShortName";
@@ -54,34 +55,33 @@ const SubjectsForm = ({ subjects, addSubject, updateSubject, editSubState, setEd
   useLayoutEffect(
     () => {
       /* Set values from existing subject if in edit mode */
-      if (editSubState.edit_mode_on && (!editSubState.editing_started)) {
-        /* Fill in fields from stored data */
-        const oldSubData = getSubjectById(subjects, editSubState.sub_id);
-        if (!oldSubData) {
-          setEditingDone();
-        } else {
-          /* set editSubState.editing_started to true */
-          setEditingStarted();
-          /* Change form state to editing */
-          setFormState({
-            ...formState,
-            sub_name_value: oldSubData.name,
-            sub_name_short_value: oldSubData.short_name,
-            teacher_name_value: oldSubData.teacher_name,
-            user_changed_short_name: true
-          });
-          if (sub_name_input_el !== null) {
-            sub_name_input_el.focus();
-          }
-        }
+      if (!editingSubject.mode_on || (formState.mode === "edit")) return;
+      /* Fill in fields from stored data */
+      const oldSubData = getSubjectById(subjects, editingSubject.sub_id);
+      if (!oldSubData) {
+        setEditingSubjectDone();
+        return;
       }
-    },
-    [editSubState, subjects, setEditingDone, setEditingStarted, formState, sub_name_input_el]
+      /* set editSubState.editing_started to true */
+      //setEditingStarted();
+      /* Change form state to editing */
+      setFormState({
+        sub_name_value: oldSubData.name,
+        sub_name_short_value: oldSubData.short_name,
+        teacher_name_value: oldSubData.teacher_name,
+        user_changed_short_name: true,
+        mode: "edit",
+        invalid_field_id: ''
+      });
+      if (sub_name_input_el !== null) {
+        sub_name_input_el.focus();
+      }
+    }, [editingSubject, formState.mode]//, formState, setEditingSubjectDone, subjects]
   );
 
   const resetForm = () => {
-    if (editSubState.edit_mode_on) {
-      setEditingDone();
+    if (editingSubject.mode_on) {
+      setEditingSubjectDone();
     }
     setFormState(initial_state);
   }
@@ -116,8 +116,8 @@ const SubjectsForm = ({ subjects, addSubject, updateSubject, editSubState, setEd
       sub_short_name = formState.sub_name_short_value;
     }
 
-    if (editSubState.edit_mode_on) {
-      updateSubject(editSubState.sub_id, {
+    if (editingSubject.mode_on) {
+      updateSubject(editingSubject.sub_id, {
         subject_name: sub_name,
         short_name: sub_short_name,
         teacher_name: teacher_name
@@ -185,7 +185,7 @@ const SubjectsForm = ({ subjects, addSubject, updateSubject, editSubState, setEd
       Cancel
     </Button>
   );
-  if (editSubState.edit_mode_on) {
+  if (editingSubject.mode_on) {
     submit_button_text = "Update"
   }
 
@@ -238,15 +238,15 @@ const SubjectsForm = ({ subjects, addSubject, updateSubject, editSubState, setEd
           </FormFeedback>) : (null)}
       </FormGroup>
       <Button color="primary" type="submit" className="mr-2">{submit_button_text}</Button>
-      {editSubState.edit_mode_on && cancel_button}
+      {editingSubject.mode_on && cancel_button}
     </Form>
   );
 };
 
 const mapStateToProps = (state: StoreStateInterface) => {
-  const { subjects } = state;
+  const { subjects, editingSubject } = state;
 
-  return { subjects }
+  return { subjects, editingSubject }
 }
 
-export default connect(mapStateToProps, { addSubject, updateSubject })(SubjectsForm);
+export default connect(mapStateToProps, { addSubject, updateSubject, setEditingSubjectDone })(SubjectsForm);

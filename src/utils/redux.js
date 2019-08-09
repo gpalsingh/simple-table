@@ -7,11 +7,21 @@ export const getSubjectNames = (subjects) => (
 );
 
 export const getSubjectNamesAndIds = (subjects) => {
-  let id_to_sub_name = {};
+  let id_and_sub_name = [];
 
   for (let subject of subjects) {
-    id_to_sub_name[subject['id']] = subject['name'];
+    id_and_sub_name.push([subject['id'], subject['name']]);
   }
 
-  return id_to_sub_name;
+  return id_and_sub_name;
+}
+
+export const sortSubjectsByName = (subjects) => {
+  const subCompareFunc = (firstSub, secondSub) => {
+    const isGreater = firstSub.name.toLowerCase() > secondSub.name.toLowerCase();
+    if (isGreater) return 1;
+    return -1;
+  };
+
+  return [...subjects].sort(subCompareFunc);
 }

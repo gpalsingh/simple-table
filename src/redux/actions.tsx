@@ -8,7 +8,9 @@ import {
   CLEAR_PERIODS,
   MARK_SW_NOT_WAITING,
   MARK_SW_WAITING,
-  FLIP_TIME_TABLE
+  FLIP_TIME_TABLE,
+  SET_EDITING_SUBJECT,
+  SET_EDITING_SUBJECT_DONE
 } from "./actionTypes";
 
 import {
@@ -95,4 +97,17 @@ export const markSwWaiting = () => ({
 
 export const flipTimeTable: FlipTimetableType = () => ({
   type: FLIP_TIME_TABLE
+});
+
+/* Actions for editing subject form */
+
+export const setEditingSubject = (sub_id: string) => ({
+  type: SET_EDITING_SUBJECT,
+  payload: {
+    sub_id
+  }
+});
+
+export const setEditingSubjectDone = () => ({
+  type: SET_EDITING_SUBJECT_DONE,
 });

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { removeSubject } from '../redux/actions';
+import { removeSubject, setEditingSubject } from '../redux/actions';
 import {
   StateSubjectDataInterface,
   StoreStateInterface
@@ -8,7 +8,7 @@ import {
 import {
   RemoveSubjectType
 } from '../types/reducers';
-import { EditSubStateType } from '../types/subjects';
+import { EditingSubStateType } from '../types/store';
 import {
   Table,
   Button,
@@ -20,17 +20,19 @@ import {
   ModalFooter
 } from 'reactstrap';
 import { toast } from 'react-toastify';
+import { EditingSubActionType } from '../types/actions';
+import { sortSubjectsByName } from '../utils/redux';
 
 interface SubjectsListInterface {
   subjects: StateSubjectDataInterface[],
   removeSubject: RemoveSubjectType,
-  handleEditSubClick: (id: string) => void,
-  editSubState: EditSubStateType
+  setEditingSubject: (sub_id: string) => EditingSubActionType,
+  editingSubject: EditingSubStateType
 }
 interface SubjectRemoveButtonInterface {
   sub_id: string,
   removeSubButtonClick: any,
-  editSubState: EditSubStateType
+  editingSubject: EditingSubStateType
 }
 interface removeSubPromptStateInterface {
   isOpen: boolean,
@@ -42,7 +44,7 @@ interface RemoveSubjectPopupInterface {
   confirmRemoveSub: (event: React.MouseEvent<HTMLElement>) => void
 }
 
-const SubjectRemoveButton = ({ sub_id, removeSubButtonClick, editSubState }: SubjectRemoveButtonInterface) => {
+const SubjectRemoveButton = ({ sub_id, removeSubButtonClick, editingSubject }: SubjectRemoveButtonInterface) => {
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     removeSubButtonClick(sub_id);
@@ -51,7 +53,7 @@ const SubjectRemoveButton = ({ sub_id, removeSubButtonClick, editSubState }: Sub
     <Button
       color="danger"
       onClick={handleClick}
-      disabled={editSubState.edit_mode_on}
+      disabled={editingSubject.mode_on}
       className="mr-2 mb-2 mb-md-0"
     >
       Remove
@@ -83,7 +85,7 @@ const RemoveSubjectPopup = ({ removeSubPromptState, toggleRemoveSubPrompt, confi
   );
 }
 
-const SubjectsList = ({ subjects, removeSubject, handleEditSubClick, editSubState }: SubjectsListInterface) => {
+const SubjectsList = ({ subjects, removeSubject, setEditingSubject, editingSubject }: SubjectsListInterface) => {
   let listItems = [];
   let subjectsExist = false;
   let subjects_table;
@@ -125,12 +127,12 @@ const SubjectsList = ({ subjects, removeSubject, handleEditSubClick, editSubStat
           <SubjectRemoveButton
             sub_id={subject.id}
             removeSubButtonClick={handleRemoveSubButtonClick}
-            editSubState={editSubState}
+            editingSubject={editingSubject}
           />
           <Button
             color="primary"
-            onClick={() => handleEditSubClick(subject.id)}
-            disabled={editSubState.edit_mode_on}
+            onClick={() => setEditingSubject(subject.id)}
+            disabled={editingSubject.mode_on}
           >
             Edit
           </Button>
@@ -183,16 +185,11 @@ const SubjectsList = ({ subjects, removeSubject, handleEditSubClick, editSubStat
 };
 
 const mapStateToProps = (state: StoreStateInterface) => {
-  const { subjects: subjects_orig } = state;
+  const { subjects: subjects_orig, editingSubject } = state;
   /* Sort subjects by name before displaying them */
-  const subCompareFunc = (firstSub: StateSubjectDataInterface, secondSub: StateSubjectDataInterface) => {
-    const isGreater = firstSub.name.toLowerCase() > secondSub.name.toLowerCase();
-    if (isGreater) return 1;
-    return -1;
-  };
-  const subjects = [...subjects_orig].sort(subCompareFunc);
+  const subjects = sortSubjectsByName(subjects_orig);
 
-  return { subjects }
+  return { subjects, editingSubject }
 }
 
-export default connect(mapStateToProps, { removeSubject })(SubjectsList);
+export default connect(mapStateToProps, { removeSubject, setEditingSubject })(SubjectsList);
